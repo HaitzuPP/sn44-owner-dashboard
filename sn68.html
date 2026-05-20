@@ -139,7 +139,7 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
 <!-- VERDICT BANNER -->
 <div class="verdict">
   <div class="verdict-tag">Sell verdict</div>
-  <div class="verdict-text"><strong>YES — the SN68 owner is actively liquidating emissions.</strong> Realized PNL confirmed at +11,331 τ (~$3.06M). They still hold 469,899 α = 11,332 τ (~$3.06M) with an additional +5,710 τ in unrealized gains. Total profit from SN68: <strong>+17,042 τ (~$4.61M)</strong>.</div>
+  <div class="verdict-text"><strong>YES — the SN68 owner is actively liquidating emissions.</strong> Realized PNL confirmed at +11,331 τ (~$3.06M). They still hold 469,899 α = 11,332 τ (~$3.06M) with an additional +5,710 τ mark-to-market gain (price appreciation on held emissions — not a purchase gain). Total profit from SN68: <strong>+17,042 τ (~$4.61M)</strong>.</div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════
@@ -157,7 +157,7 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
       <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:8px;">11,331 τ (~$3.06M) extracted from alpha emissions</div>
       <ul style="font-size:11px;color:#444;line-height:1.8;list-style:none;padding:0;">
         <li style="padding:3px 0;border-bottom:1px solid #f2f2f2;"><span style="color:#c0392b;font-weight:700;margin-right:8px;">+11,331 τ</span>Realized PNL confirmed via tao.app portfolio. Since emissions have zero cost basis, this equals total TAO extracted from unstaking NOVA alpha.</li>
-        <li style="padding:3px 0;border-bottom:1px solid #f2f2f2;"><span style="color:#b05e00;font-weight:700;margin-right:8px;">0.020984 T</span>Average realized alpha price. Below the current 0.024115 T/α — most sells happened earlier when price was lower.</li>
+        <li style="padding:3px 0;border-bottom:1px solid #f2f2f2;"><span style="color:#b05e00;font-weight:700;margin-right:8px;">0.020984 T</span>Average alpha price at emission receipt (tao.app cost basis). <strong>Not a purchase price</strong> — this is the AMM price when each emission batch was credited. No TAO was spent to acquire this alpha.</li>
         <li style="padding:3px 0;"><span style="color:#888;font-weight:700;margin-right:8px;">Note:</span>Full staking event history (exact dates + amounts per sell) pending manual taostats.io pull — see Data section.</li>
       </ul>
     </div>
@@ -195,7 +195,7 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
   <div class="kpi">
     <div class="kpi-label">Realized (extracted)</div>
     <div class="kpi-value r">+11,331 τ</div>
-    <div class="kpi-sub">~$3.06M · avg α price 0.020984 T</div>
+    <div class="kpi-sub">~$3.06M · avg emission receipt price 0.020984 T</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Mark-to-market gain ①</div>
@@ -270,16 +270,16 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
 <div id="sellsignal" class="section">
   <div class="section-label">Sell signal</div>
   <div class="section-title">Extraction vs Current Holdings</div>
-  <div class="section-sub">Confirmed realized PNL vs remaining position value vs unrealized gains · all values in TAO equivalent</div>
+  <div class="section-sub">Confirmed realized PNL vs remaining position value vs mark-to-market gain on held emissions · all values in TAO equivalent</div>
 
   <div class="chart-grid">
     <div class="chart-box">
-      <div class="chart-title">P&amp;L Breakdown — Realized vs Unrealized vs Remaining</div>
+      <div class="chart-title">P&amp;L Breakdown — Extracted vs Current Stake vs MTM Gain</div>
       <div class="chart-sub">TAO equivalent at current prices · 21 May 2026</div>
       <div class="legend">
         <div class="legend-item"><div class="ldot" style="background:rgba(192,57,43,0.8)"></div>Realized (extracted)</div>
         <div class="legend-item"><div class="ldot" style="background:rgba(26,79,160,0.8)"></div>Current stake value</div>
-        <div class="legend-item"><div class="ldot" style="background:rgba(26,122,60,0.7)"></div>Unrealized PNL above cost</div>
+        <div class="legend-item"><div class="ldot" style="background:rgba(26,122,60,0.7)"></div>MTM gain on held emissions ①</div></div>
       </div>
       <canvas id="pnlChart" height="175"></canvas>
     </div>
@@ -434,7 +434,7 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
       <div class="wc-meta">
         <span class="tag active">ACTIVE</span>
         <span class="tag info">CONFIRMED OWNER · tao.app/subnets/68</span>
-        Total value: $3.06M · 11,332 τ · Realized PNL: +11,331 τ · Unrealized: +5,710 τ
+        Total value: $3.06M · 11,332 τ · Realized PNL: +11,331 τ · MTM gain ①: +5,710 τ
       </div>
     </div>
     <div class="wallet-card">
@@ -523,7 +523,7 @@ const base = {responsive:true,interaction:{mode:'index',intersect:false},plugins
 // PNL Breakdown chart
 new Chart(document.getElementById('pnlChart'), {
   data:{
-    labels:['Realized\n(extracted)','Current\nstake value','Unrealized\nPNL above cost'],
+    labels:['Realized\n(extracted)','Current\nstake value','MTM gain ①\n(held emissions)'],
     datasets:[{
       type:'bar',
       data:[11331.78, 11331.93, 5710.92],
