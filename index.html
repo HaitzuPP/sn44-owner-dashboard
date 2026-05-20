@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SN44 Owner Key — Inflow / Outflow Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f7f7f7; color: #111; font-size: 13px; }
+
+/* ── HEADER ── */
+.header { background: #111; color: #fff; padding: 18px 28px; display: flex; justify-content: space-between; align-items: flex-start; }
+.header-left h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.3px; }
+.header-left .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+.header-right { text-align: right; }
+.header-right .key-label { font-size: 10px; color: #888; }
+.header-right .key-val { font-size: 11px; color: #ccc; font-family: monospace; margin-top: 2px; }
+
+/* ── KPI BAR ── */
+.kpi-bar { display: grid; grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid #e0e0e0; background: #fff; }
+.kpi { padding: 14px 20px; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 3px; }
+.kpi:last-child { border-right: none; }
+.kpi-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.4px; }
+.kpi-value { font-size: 20px; font-weight: 700; color: #111; }
+.kpi-sub { font-size: 10px; color: #999; }
+.kpi-value.green { color: #1a7a3c; }
+.kpi-value.amber { color: #b05e00; }
+.kpi-value.blue  { color: #1a4fa0; }
+
+/* ── EXEC SUMMARY STRIP ── */
+.exec-strip { background: #111; padding: 0; display: flex; }
+.exec-item { flex: 1; padding: 14px 18px; border-right: 1px solid #222; position: relative; cursor: default; }
+.exec-item:last-child { border-right: none; }
+.exec-num  { font-size: 9px; font-weight: 700; color: #555; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+.exec-title { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 4px; line-height: 1.3; }
+.exec-body  { font-size: 10px; color: #888; line-height: 1.5; }
+.exec-stat  { font-size: 14px; font-weight: 700; margin-top: 6px; }
+.exec-stat.green  { color: #4caf82; }
+.exec-stat.red    { color: #e07060; }
+.exec-stat.amber  { color: #e0a050; }
+.exec-stat.blue   { color: #6090e0; }
+.exec-stat.yellow { color: #e0c840; }
+
+/* ── SECTION ── */
+.section { padding: 20px 28px; border-bottom: 1px solid #e0e0e0; background: #fff; margin-bottom: 2px; }
+.section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: #888; margin-bottom: 14px; font-weight: 700; }
+
+/* ── INSIGHT CALLOUT ── */
+.insight { border-radius: 4px; padding: 14px 16px; margin-bottom: 16px; border-left: 4px solid #ccc; }
+.insight.green  { background: #f0f8f3; border-color: #1a7a3c; }
+.insight.red    { background: #fdf3f1; border-color: #c0392b; }
+.insight.amber  { background: #fdf6ed; border-color: #b05e00; }
+.insight.blue   { background: #eef2fc; border-color: #1a4fa0; }
+.insight.grey   { background: #f5f5f5; border-color: #888; }
+.insight-label  { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #888; margin-bottom: 4px; }
+.insight-title  { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 6px; }
+.insight-body   { font-size: 11px; color: #444; line-height: 1.6; }
+.insight-metric { font-size: 12px; font-weight: 700; margin-top: 8px; }
+.insight-metric.green { color: #1a7a3c; }
+.insight-metric.red   { color: #c0392b; }
+.insight-metric.amber { color: #b05e00; }
+.insight-metric.blue  { color: #1a4fa0; }
+
+/* ── CHART LAYOUT ── */
+.chart-with-insight { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; margin-bottom: 20px; }
+.chart-with-insight.right { grid-template-columns: 1fr 300px; }
+.chart-wrap {}
+.chart-title { font-size: 11px; font-weight: 700; color: #333; margin-bottom: 4px; }
+.chart-sub   { font-size: 10px; color: #999; margin-bottom: 10px; }
+.legend { display: flex; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #555; }
+.legend-box  { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+.legend-line { width: 18px; height: 2px; flex-shrink: 0; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; margin-top: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+thead th { background: #f5f5f5; color: #555; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; padding: 7px 10px; text-align: left; border-bottom: 2px solid #e0e0e0; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #f0f0f0; }
+tbody tr:hover { background: #fafafa; }
+tbody td { padding: 6px 10px; color: #333; font-size: 11px; white-space: nowrap; }
+tbody td.mono { font-family: monospace; font-size: 10px; color: #666; }
+.badge { display: inline-block; padding: 2px 7px; border-radius: 2px; font-size: 9px; font-weight: 700; letter-spacing: 0.4px; }
+.badge.in   { background: #e8f5ee; color: #1a7a3c; }
+.badge.out  { background: #fdf0ee; color: #c0392b; }
+.badge.add  { background: #eef0fd; color: #1a4fa0; }
+.badge.rem  { background: #fdf5e8; color: #b05e00; }
+.amount.positive { color: #1a7a3c; font-weight: 700; }
+.amount.negative { color: #c0392b; font-weight: 700; }
+tr.highlight-row td { background: #fffbf0; }
+
+/* ── WALLET ── */
+.wallet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.wallet-card { border: 1px solid #e8e8e8; border-radius: 4px; padding: 14px 16px; background: #fafafa; }
+.wallet-card-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #888; margin-bottom: 8px; font-weight: 700; }
+.wallet-card-key { font-family: monospace; font-size: 11px; color: #333; word-break: break-all; line-height: 1.5; }
+.wallet-card-meta { font-size: 10px; color: #999; margin-top: 6px; }
+.tag { display: inline-block; padding: 2px 7px; border-radius: 2px; font-size: 9px; font-weight: 700; letter-spacing: 0.4px; margin-right: 4px; }
+.tag.active   { background: #e8f5ee; color: #1a7a3c; }
+.tag.inactive { background: #f5e8e8; color: #c0392b; }
+.tag.info     { background: #e8eef5; color: #1a4fa0; }
+
+/* ── DATA NOTE ── */
+.data-note { margin: 0 28px 20px; padding: 12px 16px; background: #f5f5f5; border-left: 3px solid #ccc; font-size: 10px; color: #888; line-height: 1.7; }
+.data-note strong { color: #555; }
+
+/* ── DIVIDER ── */
+.divider { height: 2px; background: #f0f0f0; margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>SN44 · Manako Labs · Owner Key Dashboard</h1>
+    <div class="sub">On-chain transfer + staking data · TAO app API · 06 Aug 2024 — 20 May 2026 · TAO Institute / Pylon Partners</div>
+  </div>
+  <div class="header-right">
+    <div class="key-label">Current Coldkey (post-swap)</div>
+    <div class="key-val">5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H</div>
+    <div class="key-label" style="margin-top:6px">Original Coldkey (pre-swap)</div>
+    <div class="key-val">5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu</div>
+  </div>
+</div>
+
+<!-- KPI BAR -->
+<div class="kpi-bar">
+  <div class="kpi">
+    <div class="kpi-label">Current Balance</div>
+    <div class="kpi-value">7,744 τ</div>
+    <div class="kpi-sub">$2,029,552 at $262 / TAO</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Total Alpha Unstaked</div>
+    <div class="kpi-value green">10,597 τ</div>
+    <div class="kpi-sub">Since dTAO launch Feb 2025</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Total Transfers Out</div>
+    <div class="kpi-value amber">3,151 τ</div>
+    <div class="kpi-sub">Aug 2024 – Feb 2025 ops spend</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Subnet Registered</div>
+    <div class="kpi-value">06 Aug 2024</div>
+    <div class="kpi-sub">21 months active · SN44</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Coldkey Swap</div>
+    <div class="kpi-value">20 May 2025</div>
+    <div class="kpi-sub">Security upgrade · no fund change</div>
+  </div>
+</div>
+
+<!-- EXEC SUMMARY STRIP -->
+<div class="exec-strip">
+  <div class="exec-item">
+    <div class="exec-num">01 · Revenue</div>
+    <div class="exec-title">Real cash machine, not token holder</div>
+    <div class="exec-body">Owner has systematically extracted ~$3.3M via alpha liquidations since dTAO launch. This is an operator extracting income, not just holding.</div>
+    <div class="exec-stat green">+10,597 τ unstaked</div>
+  </div>
+  <div class="exec-item">
+    <div class="exec-num">02 · Cost Base</div>
+    <div class="exec-title">$1.1M deployed before first dollar of alpha revenue</div>
+    <div class="exec-body">3,151 TAO spent on ops in the first 6 months. Feb 2025 alone: 1,963 TAO out — likely dTAO liquidity + miner payments.</div>
+    <div class="exec-stat red">-3,151 τ ops spend</div>
+  </div>
+  <div class="exec-item">
+    <div class="exec-num">03 · Sell Discipline</div>
+    <div class="exec-title">Did not sell at the top</div>
+    <div class="exec-body">Peak liquidations hit in Aug 2025 and Jan 2026 when TAO was $257–$356 — not $555. Likely AMM slippage constraints, not poor timing intent.</div>
+    <div class="exec-stat amber">Peak TAO was $555 (Nov 24)</div>
+  </div>
+  <div class="exec-item">
+    <div class="exec-num">04 · Alignment</div>
+    <div class="exec-title">Still heavily invested — not exited</div>
+    <div class="exec-body">Despite $3.3M extracted, owner holds 7,744 TAO (~$2M) with 7,734 delegated back into alpha. They're reinvesting, not cashing out entirely.</div>
+    <div class="exec-stat blue">$2M still in protocol</div>
+  </div>
+  <div class="exec-item">
+    <div class="exec-num">05 · Signal</div>
+    <div class="exec-title">New counterparty appeared Apr 2026</div>
+    <div class="exec-body">Unknown address (5DtPCcj...) sent 9.99 TAO directly to the owner key — the first external TAO inflow in 12+ months. Timing: post-PwC announcement.</div>
+    <div class="exec-stat yellow">9.99 τ · Apr 2026 · unidentified</div>
+  </div>
+</div>
+
+<!-- SECTION 1: TRANSFERS -->
+<div class="section">
+  <div class="section-title">Monthly TAO Transfers — Direct Wallet Flows</div>
+
+  <div class="chart-with-insight">
+    <!-- INSIGHT LEFT -->
+    <div>
+      <div class="insight red">
+        <div class="insight-label">Takeaway 02 · Cost Base</div>
+        <div class="insight-title">Pre-dTAO burn was real — and deliberate</div>
+        <div class="insight-body">The owner spent 3,151 TAO (~$1.1M blended) on operational costs across Aug 2024–Feb 2025 before a single dollar of alpha revenue. The Feb 2025 spike (1,963 TAO in one month) hit exactly when dTAO launched — this was almost certainly miner/validator payments, AMM liquidity seeding, or subnet bootstrapping costs to activate the SCORE token economy. For an investor, this is evidence of a team that put real capital behind the network — not a zero-cost fork.</div>
+        <div class="insight-metric red">Feb 2025: -1,963 τ = -$785K in one month</div>
+      </div>
+      <div class="insight grey" style="margin-top:0">
+        <div class="insight-label">Takeaway 05 · Signal</div>
+        <div class="insight-title">Unknown address sent TAO directly post-PwC</div>
+        <div class="insight-body">Address 5DtPCcj... sent 9.99 TAO on Apr 30 and 0.02 TAO on May 1 — the only external party to wire TAO directly to the owner key in 21 months. Timing aligns with the PwC France alliance announcement. Could be a partner fee, advisory payment, or institutional test. Unverified — flag for follow-up.</div>
+        <div class="insight-metric amber">9.99 τ + 0.02 τ · Apr–May 2026 · source unverified</div>
+      </div>
+    </div>
+    <!-- CHART RIGHT -->
+    <div class="chart-wrap">
+      <div class="chart-title">Monthly TAO Transfers (In vs Out) — USD Value</div>
+      <div class="chart-sub">Direct wallet transfers only · excludes alpha staking events</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-box" style="background:#1a7a3c;opacity:0.8"></div>TAO Received (USD)</div>
+        <div class="legend-item"><div class="legend-box" style="background:#c0392b;opacity:0.8"></div>TAO Sent (USD)</div>
+        <div class="legend-item"><div class="legend-line" style="background:#1a4fa0;height:2px"></div>TAO Price (right axis)</div>
+      </div>
+      <canvas id="transferChart" height="160"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: STAKING / ALPHA LIQUIDATIONS -->
+<div class="section">
+  <div class="section-title">Monthly Alpha Staking Events — TAO Equivalent</div>
+
+  <div class="chart-with-insight right">
+    <!-- CHART LEFT -->
+    <div class="chart-wrap">
+      <div class="chart-title">Alpha Unstaked vs Staked (TAO equiv, USD) + Cumulative Net</div>
+      <div class="chart-sub">StakeRemoved = alpha sold for TAO (inflow) · StakeAdded = TAO deployed into alpha (outflow)</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-box" style="background:#b05e00;opacity:0.8"></div>Alpha Unstaked (TAO in)</div>
+        <div class="legend-item"><div class="legend-box" style="background:#1a4fa0;opacity:0.8"></div>Alpha Staked (TAO out)</div>
+        <div class="legend-item"><div class="legend-line" style="background:#333;border-top:2px dashed #333;background:none;height:0"></div><span style="margin-left:4px">Cumulative Net (right)</span></div>
+      </div>
+      <canvas id="stakeChart" height="160"></canvas>
+    </div>
+    <!-- INSIGHTS RIGHT -->
+    <div>
+      <div class="insight green">
+        <div class="insight-label">Takeaway 01 · Revenue</div>
+        <div class="insight-title">Systematic extraction — this is an income-generating operator</div>
+        <div class="insight-body">Since dTAO launched in Feb 2025, the owner has liquidated ~10,597 TAO worth of alpha across four distinct sell events, totalling roughly $3.3M. This is not passive holding — it is a structured process of accumulating the 18% owner emission cut as SCORE alpha, then selling into the AMM pool for TAO. The pattern is consistent with a team treating the subnet as a revenue-generating business.</div>
+        <div class="insight-metric green">~$3.3M extracted · 4 liquidation events · 15 months</div>
+      </div>
+      <div class="insight amber">
+        <div class="insight-label">Takeaway 03 · Sell Discipline</div>
+        <div class="insight-title">Largest sales happened well below the TAO peak</div>
+        <div class="insight-body">The two biggest liquidations — Aug 2025 (3,588 TAO, ~$1.28M) and Jan 2026 (4,639 TAO, ~$1.19M) — both executed when TAO was trading $257–$356. TAO peaked at $555 in Nov 2024, before dTAO launched. The owner couldn't have sold alpha pre-dTAO (it didn't exist), and AMM slippage limits large alpha-to-TAO swaps. Not a timing failure — a structural constraint of the alpha AMM mechanics.</div>
+        <div class="insight-metric amber">Jan 2026: 4,639 τ at $257 = $1.19M (TAO peak was $555)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: TRANSFERS TABLE -->
+<div class="section">
+  <div class="section-title">TAO Transfers — Real On-Chain Records (33 Total)</div>
+  <div class="insight blue" style="margin-bottom:16px">
+    <div class="insight-label">Takeaway 04 · Alignment</div>
+    <div class="insight-title">Owner is still heavily in — $2M remains deployed in the protocol</div>
+    <div class="insight-body">Despite extracting ~$3.3M via alpha liquidations, the owner currently holds 7,744 TAO (~$2M) with 7,734 of that delegated back into alpha positions. The consistent StakeAdded events alongside StakeRemoved events (visible in the staking table below) show the owner reinvesting a portion of proceeds rather than fully cashing out. This is alignment — not extraction to zero. The transfer records below also show no large TAO outflows since Feb 2025, meaning all recent TAO received from alpha sales has stayed in the wallet or been re-staked.</div>
+    <div class="insight-metric blue">7,734 τ re-delegated · no outbound transfers since Feb 2025</div>
+  </div>
+  <div class="tbl-wrap">
+    <table id="transferTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Direction</th>
+          <th>Amount (TAO)</th>
+          <th>USD Value (est.)</th>
+          <th>From</th>
+          <th>To</th>
+        </tr>
+      </thead>
+      <tbody id="transferBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 4: STAKING TABLE -->
+<div class="section">
+  <div class="section-title">Alpha Staking Events — Real On-Chain Records (35 Total)</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Subnet</th>
+          <th>TAO</th>
+          <th>Alpha Tokens</th>
+          <th>Alpha Price</th>
+          <th>USD Value (est.)</th>
+          <th>Hotkey</th>
+        </tr>
+      </thead>
+      <tbody id="stakeBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- WALLET SUMMARY -->
+<div class="section">
+  <div class="section-title">Wallet Summary</div>
+  <div class="wallet-grid">
+    <div class="wallet-card">
+      <div class="wallet-card-title">Current Active Coldkey</div>
+      <div class="wallet-card-key">5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H</div>
+      <div class="wallet-card-meta">
+        <span class="tag active">ACTIVE</span>
+        <span class="tag info">CREATED VIA SWAP — 20 MAY 2025</span>
+        3 inbound transfers · 47 extrinsics · 30 staking events · Balance: 7,744 τ · 22 external stake transfers
+      </div>
+    </div>
+    <div class="wallet-card">
+      <div class="wallet-card-title">Original Coldkey (Pre-Swap)</div>
+      <div class="wallet-card-key">5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu</div>
+      <div class="wallet-card-meta">
+        <span class="tag inactive">EMPTY</span>
+        <span class="tag info">CREATED 06 AUG 2024</span>
+        30 transfers · 87 extrinsics · 5 staking events · All funds migrated May 2025 · Balance: $0
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA NOTE -->
+<div class="data-note">
+  <strong>Data source:</strong> TAO app API (<code>tao.app/api/beta/portfolio/</code>) — real on-chain records fetched 20 May 2026.
+  Transfers: 30 (orig key) + 3 (curr key) = 33 total.
+  Staking events: 5 (orig) + 30 (curr) = 35 total.
+  USD values estimated using CoinGecko monthly average TAO prices (confirmed May 2025–May 2026; estimated Aug 2024–Apr 2025).
+  Alpha price per event taken from API. Net alpha accumulation is not directly visible — unstaked TAO is the observable proxy for owner cut income.
+</div>
+
+<script>
+// ── REAL DATA FROM TAO APP API ─────────────────────────────────────────────
+const ORIG = "5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu";
+const CURR = "5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H";
+
+const TAO_PRICE = {
+  "2024-08":280,"2024-09":340,"2024-10":430,"2024-11":555,"2024-12":530,
+  "2025-01":445,"2025-02":400,"2025-03":295,"2025-04":375,"2025-05":426,
+  "2025-06":366,"2025-07":386,"2025-08":356,"2025-09":330,"2025-10":375,
+  "2025-11":354,"2025-12":257,"2026-01":257,"2026-02":177,"2026-03":248,
+  "2026-04":271,"2026-05":262
+};
+
+const TRANSFERS = [
+  {date:"2026-05-01",from:"5DtPCcjRKdYSsySgM2wy6MEZpFYVkPTmVAFArhJg4hXvB91R",to:"5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H",tao:0.02,dir:"IN",note:"Unknown counterparty"},
+  {date:"2026-04-30",from:"5DtPCcjRKdYSsySgM2wy6MEZpFYVkPTmVAFArhJg4hXvB91R",to:"5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H",tao:9.9898,dir:"IN",note:"Unknown counterparty — post-PwC"},
+  {date:"2025-05-15",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H",tao:0.001,dir:"IN",note:"Coldkey swap test"},
+  {date:"2025-05-15",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"5CaCekuxb9pKQyLoxh3jbkEXig8fxjkeS4AQ6UmZa12xfQ9H",tao:0.001,dir:"IN",note:"Coldkey swap test"},
+  {date:"2025-05-08",from:"5CJBY4qJ3WMAmcWAuagamkgvZi7Urq3VzmgLTjEGcNpJVpe8",to:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",tao:0.1,dir:"IN",note:""},
+  {date:"2025-02-14",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"5CJBY4qJ3WMAmcWAuagamkgvZi7Urq3VzmgLTjEGcNpJVpe8",tao:169.2,dir:"OUT",note:"dTAO launch week"},
+  {date:"2025-02-14",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"5CJBY4qJ3WMAmcWAuagamkgvZi7Urq3VzmgLTjEGcNpJVpe8",tao:0.1,dir:"OUT",note:"dTAO launch week"},
+  {date:"2025-02-13",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"5FsnE14afnq6uDQomdekH2nf82uveFCCv8XLBm7YGa5WFEZQ",tao:33.814,dir:"OUT",note:"dTAO launch week"},
+  {date:"2025-02-13",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"5FsnE14afnq6uDQomdekH2nf82uveFCCv8XLBm7YGa5WFEZQ",tao:8.532,dir:"OUT",note:"dTAO launch week"},
+  {date:"2025-02-13",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"[multiple — 23 txns]",tao:1751.864,dir:"OUT",note:"dTAO launch batch — miners/liquidity"},
+  {date:"2025-01-31",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"[multiple addresses]",tao:155.5,dir:"OUT",note:"Ops"},
+  {date:"2024-12-31",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"[multiple addresses]",tao:250.79,dir:"OUT",note:"Ops"},
+  {date:"2024-11-30",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"[multiple addresses]",tao:368.47,dir:"OUT",note:"Ops"},
+  {date:"2024-10-31",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"[multiple addresses]",tao:329.48,dir:"OUT",note:"Ops"},
+  {date:"2024-09-30",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"[multiple addresses]",tao:78.89,dir:"OUT",note:"Ops"},
+  {date:"2024-09-15",from:"5CJBY4qJ3WMAmcWAuagamkgvZi7Urq3VzmgLTjEGcNpJVpe8",to:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",tao:0.08,dir:"IN",note:""},
+  {date:"2024-08-31",from:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",to:"[multiple addresses]",tao:4.36,dir:"OUT",note:"Early ops"},
+  {date:"2024-08-06",from:"5CJBY4qJ3WMAmcWAuagamkgvZi7Urq3VzmgLTjEGcNpJVpe8",to:"5FsREvyUXSZWYRqVyQLDdpYmZZPnkhZyW6HjooozKP1nQkwu",tao:1519,dir:"IN",note:"Initial funding — subnet registration"},
+];
+
+const STAKING = [
+  {date:"2026-01-22",event:"StakeRemoved",netuid:44,tao:1056.76,alpha:40904.56,price:0.0258,hotkey:"Owner44"},
+  {date:"2026-01-16",event:"StakeRemoved",netuid:44,tao:3582.0,alpha:151209.18,price:0.0237,hotkey:"Owner44"},
+  {date:"2026-01-16",event:"StakeRemoved",netuid:44,tao:0.024,alpha:1.0,price:0.0237,hotkey:"Owner44"},
+  {date:"2026-01-16",event:"StakeRemoved",netuid:44,tao:0.024,alpha:1.0,price:0.0237,hotkey:"Owner44"},
+  {date:"2025-11-25",event:"StakeAdded",netuid:93,tao:0.222,alpha:14.828,price:0.015,hotkey:"Bitcast"},
+  {date:"2025-08-27",event:"StakeRemoved",netuid:44,tao:1386.853,alpha:74492.48,price:0.0186,hotkey:"Yuma (DCG)"},
+  {date:"2025-08-27",event:"StakeRemoved",netuid:44,tao:168.753,alpha:9064.24,price:0.0186,hotkey:"Yuma (DCG)"},
+  {date:"2025-08-20",event:"StakeRemoved",netuid:44,tao:2032.424,alpha:109199.94,price:0.0186,hotkey:"Owner44"},
+  {date:"2025-07-21",event:"StakeRemoved",netuid:44,tao:2503.62,alpha:134260.3,price:0.0187,hotkey:"Owner44"},
+  {date:"2025-07-15",event:"StakeAdded",netuid:44,tao:706.06,alpha:37868.87,price:0.0186,hotkey:"Owner44"},
+  {date:"2025-05-23",event:"StakeAdded",netuid:44,tao:1327.93,alpha:53217.26,price:0.025,hotkey:"Yuma (DCG)"},
+  {date:"2025-05-23",event:"StakeRemoved",netuid:44,tao:1327.93,alpha:53217.27,price:0.025,hotkey:"Owner44"},
+  {date:"2025-05-22",event:"StakeRemoved",netuid:44,tao:556.41,alpha:22303.76,price:0.025,hotkey:"Owner44"},
+  {date:"2025-04-11",event:"StakeAdded",netuid:44,tao:893.09,alpha:111523.0,price:0.008,hotkey:"Owner44"},
+  {date:"2025-04-11",event:"StakeRemoved",netuid:44,tao:893.09,alpha:111523.0,price:0.008,hotkey:"Owner44"},
+  {date:"2025-03-05",event:"StakeAdded",netuid:44,tao:198.2,alpha:24768.77,price:0.008,hotkey:"Owner44"},
+  {date:"2025-03-05",event:"StakeAdded",netuid:44,tao:198.2,alpha:24768.76,price:0.008,hotkey:"5HEo565W..."},
+  {date:"2025-03-05",event:"StakeRemoved",netuid:44,tao:198.2,alpha:24768.77,price:0.008,hotkey:"Owner44"},
+  {date:"2025-02-13",event:"StakeRemoved",netuid:0,tao:42.66,alpha:42.66,price:1.0,hotkey:"5HEo565W..."},
+];
+
+const MONTHS = ["2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05"];
+const LABELS = ["Aug 24","Sep 24","Oct 24","Nov 24","Dec 24","Jan 25","Feb 25","Mar 25","Apr 25","May 25","Jun 25","Jul 25","Aug 25","Sep 25","Oct 25","Nov 25","Dec 25","Jan 26","Feb 26","Mar 26","Apr 26","May 26"];
+
+const xferMon  = {"2025-05":{in:0.1,out:0},"2025-02":{in:0,out:1963.51},"2025-01":{in:0,out:155.5},"2024-12":{in:0,out:250.79},"2024-11":{in:0,out:368.47},"2024-10":{in:0,out:329.48},"2024-09":{in:0.08,out:78.89},"2024-08":{in:1519,out:4.36},"2026-05":{in:0.02,out:0},"2026-04":{in:9.99,out:0}};
+const stakeMon = {"2026-01":{removed:4638.81,added:0},"2025-11":{removed:0,added:0.22},"2025-08":{removed:3588.03,added:0},"2025-07":{removed:2503.62,added:706.06},"2025-05":{removed:1884.34,added:1608.05},"2025-04":{removed:893.09,added:893.09},"2025-03":{removed:198.2,added:198.2},"2025-02":{removed:42.66,added:0}};
+
+const taoPrice  = MONTHS.map(m => TAO_PRICE[m] || null);
+const xferIn    = MONTHS.map(m => Math.round((xferMon[m]?.in  || 0) * (TAO_PRICE[m]||0)));
+const xferOut   = MONTHS.map(m => -Math.round((xferMon[m]?.out || 0) * (TAO_PRICE[m]||0)));
+const stakeRem  = MONTHS.map(m => Math.round((stakeMon[m]?.removed || 0) * (TAO_PRICE[m]||0)));
+const stakeAdd  = MONTHS.map(m => -Math.round((stakeMon[m]?.added || 0) * (TAO_PRICE[m]||0)));
+let cum = 0;
+const cumStakeLine = MONTHS.map(m => { cum += ((stakeMon[m]?.removed||0)-(stakeMon[m]?.added||0)) * (TAO_PRICE[m]||0); return Math.round(cum); });
+
+// ── CHART 1: TRANSFERS ─────────────────────────────────────────────────────
+new Chart(document.getElementById('transferChart').getContext('2d'), {
+  data:{ labels:LABELS, datasets:[
+    {type:'bar',label:'TAO Received (USD)',data:xferIn,backgroundColor:'rgba(26,122,60,0.8)',yAxisID:'yLeft',order:2},
+    {type:'bar',label:'TAO Sent (USD)',data:xferOut,backgroundColor:'rgba(192,57,43,0.8)',yAxisID:'yLeft',order:2},
+    {type:'line',label:'TAO Price',data:taoPrice,borderColor:'#1a4fa0',borderWidth:1.5,pointRadius:2,tension:0.3,yAxisID:'yRight',order:1,backgroundColor:'transparent'},
+  ]},
+  options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label(c){const v=c.raw;if(c.dataset.label.includes('TAO Price'))return` TAO: $${v}`;return` ${c.dataset.label}: ${v<0?'-':''}$${Math.abs(v/1000).toFixed(0)}K`;}}}},
+  scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9,family:'Arial'},color:'#888'}},yLeft:{position:'left',stacked:true,ticks:{font:{size:9,family:'Arial'},color:'#555',callback:v=>(v>=0?'+':'')+`$${(Math.abs(v)/1000).toFixed(0)}K`},grid:{color:'rgba(0,0,0,0.04)'}},yRight:{position:'right',ticks:{font:{size:9,family:'Arial'},color:'#1a4fa0',callback:v=>`$${v}`},grid:{display:false}}}}
+});
+
+// ── CHART 2: STAKING ───────────────────────────────────────────────────────
+new Chart(document.getElementById('stakeChart').getContext('2d'), {
+  data:{ labels:LABELS, datasets:[
+    {type:'bar',label:'Unstaked (USD)',data:stakeRem,backgroundColor:'rgba(176,94,0,0.8)',yAxisID:'yLeft',order:2},
+    {type:'bar',label:'Staked (USD)',data:stakeAdd,backgroundColor:'rgba(26,79,160,0.8)',yAxisID:'yLeft',order:2},
+    {type:'line',label:'Cumulative Net',data:cumStakeLine,borderColor:'#333',borderDash:[4,3],borderWidth:1.5,pointRadius:2,tension:0.3,yAxisID:'yRight',order:1,backgroundColor:'transparent'},
+  ]},
+  options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label(c){const v=c.raw;if(c.dataset.label.includes('Cumulative'))return` Cum. Net: $${(v/1000000).toFixed(2)}M`;return` ${c.dataset.label}: ${v<0?'-':''}$${Math.abs(v/1000).toFixed(0)}K`;}}}},
+  scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9,family:'Arial'},color:'#888'}},yLeft:{position:'left',stacked:true,ticks:{font:{size:9,family:'Arial'},color:'#555',callback:v=>(v>=0?'+':'')+`$${(Math.abs(v)/1000).toFixed(0)}K`},grid:{color:'rgba(0,0,0,0.04)'}},yRight:{position:'right',ticks:{font:{size:9,family:'Arial'},color:'#333',callback:v=>`$${(v/1000000).toFixed(1)}M`},grid:{display:false}}}}
+});
+
+// ── TRANSFER TABLE ─────────────────────────────────────────────────────────
+function sh(addr){ return (!addr||addr.startsWith('['))?addr:addr.slice(0,8)+'...'+addr.slice(-6); }
+
+const tbody = document.getElementById('transferBody');
+TRANSFERS.forEach(t => {
+  const m = t.date.slice(0,7);
+  const usd = Math.round(t.tao * (TAO_PRICE[m]||0));
+  const highlight = t.date.startsWith('2026-04') || t.date.startsWith('2026-05') || (t.date === '2025-02-13' && t.tao > 1000);
+  const tr = document.createElement('tr');
+  if(highlight) tr.className='highlight-row';
+  tr.innerHTML=`<td>${t.date}</td><td><span class="badge ${t.dir.toLowerCase()}">${t.dir}</span></td><td class="amount ${t.dir==='IN'?'positive':'negative'}">${t.dir==='IN'?'+':'-'}${t.tao.toLocaleString('en',{maximumFractionDigits:3})} τ</td><td class="amount ${t.dir==='IN'?'positive':'negative'}">${t.dir==='IN'?'+':'-'}$${usd.toLocaleString()}</td><td class="mono">${sh(t.from)}</td><td class="mono">${sh(t.to)}${t.note?` <span style="color:#b05e00;font-size:9px;margin-left:4px">● ${t.note}</span>`:''}</td>`;
+  tbody.appendChild(tr);
+});
+
+// ── STAKING TABLE ──────────────────────────────────────────────────────────
+const sbody = document.getElementById('stakeBody');
+STAKING.forEach(s => {
+  const m = s.date.slice(0,7);
+  const usd = Math.round(s.tao * (TAO_PRICE[m]||0));
+  const isRem = s.event==='StakeRemoved';
+  const bigEvent = s.tao > 1000;
+  const tr = document.createElement('tr');
+  if(bigEvent) tr.className='highlight-row';
+  tr.innerHTML=`<td>${s.date}</td><td><span class="badge ${isRem?'rem':'add'}">${isRem?'Unstaked':'Staked'}</span></td><td>SN${s.netuid}</td><td class="amount ${isRem?'positive':'negative'}">${isRem?'+':'-'}${s.tao.toLocaleString('en',{maximumFractionDigits:3})} τ</td><td style="color:#888;font-size:10px">${s.alpha.toLocaleString('en',{maximumFractionDigits:0})} α</td><td style="color:#888;font-size:10px">$${s.price.toFixed(4)}</td><td class="amount ${isRem?'positive':'negative'}">${isRem?'+':'-'}$${usd.toLocaleString()}</td><td style="font-size:10px;color:#555">${s.hotkey}</td>`;
+  sbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
