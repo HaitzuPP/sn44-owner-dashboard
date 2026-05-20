@@ -64,7 +64,7 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
 .xlink { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: #1a4fa0; text-decoration: none; background: #eef2fc; border: 1px solid #c0d3f5; border-radius: 3px; padding: 2px 8px; }
 .xlink:hover { background: #dce8f8; }
 .xlink.g { color: #1a7a3c; background: #e8f5ee; border-color: #9ecfb0; }
-.xlink.g:hover { background: #d4eed e; }
+.xlink.g:hover { background: #d4eede; }
 
 /* ── CHARTS ── */
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -192,7 +192,7 @@ tr.transfer-row td { background: #f0f8f3; }
 .tag.info   { background: #eef2fc; color: #1a4fa0; }
 
 /* ── FOOTER ── */
-.footer { padding: 14px 32px; background: #f9f9f9; border-top: 1px solid #e8e8e8; font-size: 10px; color: #aaa; line-height: 1.7; }
+.footer { padding: 14px 32px; background: #f9f9f9; border-top: 1px solid #e8e8e8; font-size: 11px; color: #777; line-height: 1.7; }
 </style>
 </head>
 <body>
@@ -213,11 +213,12 @@ tr.transfer-row td { background: #f0f8f3; }
 <!-- STICKY NAV -->
 <nav class="nav">
   <a href="#overview">Overview</a>
+  <a href="#insights">Insights</a>
   <a href="#flows">Flows</a>
   <a href="#split">Emission Split</a>
   <a href="#yuma" class="yuma-link">Yuma P&amp;L</a>
   <a href="#data">Raw Data</a>
-  <div class="off-pill"><div class="dot"></div>Revenue share OFF · last allocation May 23 2025</div>
+  <div class="off-pill"><div class="dot"></div>Revenue share OFF</div>
 </nav>
 
 <!-- ══════════════════════════════════════════════════════════
@@ -296,7 +297,7 @@ tr.transfer-row td { background: #f0f8f3; }
 <!-- ══════════════════════════════════════════════════════════
      INSIGHTS
 ══════════════════════════════════════════════════════════ -->
-<div class="insights-grid">
+<div id="insights" class="insights-grid">
 
   <div class="insight-card">
     <div class="ic-num">01 · Revenue model</div>
@@ -362,7 +363,7 @@ tr.transfer-row td { background: #f0f8f3; }
         <div class="legend-item"><div class="ldot" style="background:#c0392b;opacity:.85"></div>TAO sent</div>
         <div class="legend-item"><div class="lline" style="background:#1a4fa0"></div>TAO price (right)</div>
       </div>
-      <canvas id="transferChart" height="140"></canvas>
+      <canvas id="transferChart" height="175"></canvas>
       <div class="chart-notes">
         <div class="cnote g">
           <div class="cnote-label">Aug 2024</div>
@@ -387,7 +388,7 @@ tr.transfer-row td { background: #f0f8f3; }
         <div class="legend-item"><div class="ldot" style="background:rgba(26,79,160,0.7)"></div>Staked (all)</div>
         <div class="legend-item"><div class="ldash"></div>Cumulative net (right)</div>
       </div>
-      <canvas id="alphaChart" height="140"></canvas>
+      <canvas id="alphaChart" height="175"></canvas>
       <div class="chart-notes">
         <div class="cnote a">
           <div class="cnote-label">Aug 2025 · both parties exit</div>
