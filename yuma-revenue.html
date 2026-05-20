@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SN44 · Yuma / DCG Revenue Share</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size: 13px; line-height: 1.5; }
+
+.header { background: #111; color: #fff; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 16px; font-weight: 700; }
+.header .meta { font-size: 11px; color: #888; margin-top: 3px; }
+.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.status-pill.off  { background: #fdecea; color: #c0392b; border: 1px solid #e8a89a; }
+.status-pill.on   { background: #e8f5ee; color: #1a7a3c; border: 1px solid #9ecfb0; }
+.status-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+.status-pill.off .dot { background: #c0392b; }
+.status-pill.on  .dot { background: #1a7a3c; }
+
+/* KPI */
+.kpi-strip { display: grid; grid-template-columns: repeat(4,1fr); border-bottom: 2px solid #111; }
+.kpi { padding: 16px 24px; border-right: 1px solid #e8e8e8; }
+.kpi:last-child { border-right: none; }
+.kpi-label { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.kpi-value { font-size: 22px; font-weight: 700; }
+.kpi-sub { font-size: 10px; color: #999; margin-top: 2px; }
+.kpi-value.g { color: #1a7a3c; }
+.kpi-value.r { color: #c0392b; }
+.kpi-value.a { color: #b05e00; }
+.kpi-value.n { color: #555; }
+
+/* WATERFALL */
+.waterfall-wrap { padding: 24px 32px; border-bottom: 1px solid #e8e8e8; }
+.wf-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #bbb; margin-bottom: 20px; }
+.wf-row { display: flex; align-items: center; gap: 0; margin-bottom: 10px; position: relative; }
+.wf-date { font-size: 10px; color: #aaa; width: 80px; flex-shrink: 0; }
+.wf-desc { font-size: 11px; font-weight: 700; color: #333; width: 280px; flex-shrink: 0; }
+.wf-desc .sub { font-weight: 400; color: #888; display: block; font-size: 10px; }
+.wf-bar-area { flex: 1; position: relative; height: 28px; }
+.wf-bar { height: 100%; border-radius: 2px; display: flex; align-items: center; padding: 0 10px; position: absolute; }
+.wf-bar.in  { background: rgba(26,122,60,0.12); border: 1px solid rgba(26,122,60,0.3); left: 0; }
+.wf-bar.out { background: rgba(192,57,43,0.10); border: 1px solid rgba(192,57,43,0.25); }
+.wf-bar.hold{ background: rgba(26,79,160,0.10); border: 1px solid rgba(26,79,160,0.25); left: 0; }
+.wf-bar.off { background: rgba(136,136,136,0.08); border: 1px dashed #ccc; left: 0; }
+.wf-val { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.wf-val.in   { color: #1a7a3c; }
+.wf-val.out  { color: #c0392b; }
+.wf-val.hold { color: #1a4fa0; }
+.wf-val.off  { color: #aaa; }
+.wf-usd { font-size: 10px; color: #aaa; margin-left: 8px; white-space: nowrap; }
+.wf-divider { border: none; border-top: 1px solid #e8e8e8; margin: 6px 0 6px 80px; }
+.wf-total-row { display: flex; align-items: center; gap: 0; margin-top: 6px; padding-top: 10px; border-top: 2px solid #111; }
+.wf-total-label { font-size: 11px; font-weight: 700; width: 360px; flex-shrink: 0; }
+
+/* TIMELINE */
+.timeline-wrap { padding: 24px 32px; border-bottom: 1px solid #e8e8e8; }
+.tl-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #bbb; margin-bottom: 20px; }
+.tl-line { position: relative; padding-left: 24px; border-left: 2px solid #e8e8e8; margin-left: 80px; }
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot { position: absolute; left: -31px; top: 3px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; }
+.tl-dot.g { background: #1a7a3c; }
+.tl-dot.r { background: #c0392b; }
+.tl-dot.a { background: #b05e00; }
+.tl-dot.b { background: #1a4fa0; }
+.tl-dot.n { background: #ccc; }
+.tl-date { font-size: 10px; color: #aaa; position: absolute; left: -108px; top: 1px; text-align: right; width: 80px; }
+.tl-title { font-size: 12px; font-weight: 700; color: #111; margin-bottom: 3px; }
+.tl-body { font-size: 11px; color: #555; line-height: 1.6; }
+.tl-tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 9px; font-weight: 700; margin-top: 5px; }
+.tl-tag.g { background: #e8f5ee; color: #1a7a3c; }
+.tl-tag.r { background: #fdecea; color: #c0392b; }
+.tl-tag.a { background: #fdf3e3; color: #b05e00; }
+.tl-tag.b { background: #eef2fc; color: #1a4fa0; }
+.tl-tag.n { background: #f2f2f2; color: #555; }
+
+/* SECTION */
+.section { padding: 24px 32px; border-bottom: 1px solid #e8e8e8; }
+.section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #bbb; margin-bottom: 4px; }
+.section-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; }
+.section-sub { font-size: 11px; color: #888; margin-bottom: 20px; }
+.legend { display: flex; gap: 14px; margin-bottom: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #777; }
+.dot { width: 10px; height: 10px; border-radius: 2px; }
+
+/* INSIGHTS */
+.insights-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; border-bottom: 2px solid #111; }
+.insight-card { padding: 20px 24px; border-right: 1px solid #e8e8e8; }
+.insight-card:last-child { border-right: none; }
+.ic-num { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #bbb; margin-bottom: 6px; }
+.ic-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 8px; line-height: 1.3; }
+.ic-body { font-size: 11px; color: #555; line-height: 1.6; }
+.ic-stat { display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 3px; }
+.ic-stat.g { background: #e8f5ee; color: #1a7a3c; }
+.ic-stat.r { background: #fdecea; color: #c0392b; }
+.ic-stat.a { background: #fdf3e3; color: #b05e00; }
+.ic-stat.b { background: #eef2fc; color: #1a4fa0; }
+.ic-stat.n { background: #f2f2f2; color: #555; }
+
+/* TABLE */
+.toggle-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #1a4fa0; cursor: pointer; background: none; border: 1px solid #d0dff5; border-radius: 3px; padding: 5px 12px; margin-top: 4px; }
+.toggle-btn:hover { background: #f0f5ff; }
+.toggle-btn svg { transition: transform 0.2s; }
+.toggle-btn.open svg { transform: rotate(180deg); }
+.table-wrap { display: none; overflow-x: auto; margin-top: 14px; }
+.table-wrap.open { display: block; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+thead th { background: #f7f7f7; color: #777; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; padding: 7px 10px; text-align: left; border-bottom: 1px solid #e8e8e8; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #f2f2f2; }
+tbody tr:hover { background: #fafafa; }
+tbody td { padding: 6px 10px; color: #333; font-size: 11px; white-space: nowrap; }
+.badge { display: inline-block; padding: 2px 7px; border-radius: 2px; font-size: 9px; font-weight: 700; }
+.badge.rem { background: #fdf3e3; color: #b05e00; }
+.badge.add { background: #eef2fc; color: #1a4fa0; }
+.pos { color: #1a7a3c; font-weight: 700; }
+.neg { color: #c0392b; font-weight: 700; }
+tr.hl td { background: #fffbf2; }
+
+.footer { padding: 14px 32px; background: #f9f9f9; border-top: 1px solid #e8e8e8; font-size: 10px; color: #aaa; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <h1>SN44 · Yuma / DCG Revenue Share</h1>
+    <div class="meta">Total proceeds from SN44 alpha emissions · May 2025 – present · TAO Institute / Pylon Partners</div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+    <div class="status-pill off"><div class="dot"></div>Revenue share OFF</div>
+    <div style="font-size:10px;color:#555">Last allocation: May 23 2025 · Last liquidation: Aug 27 2025</div>
+  </div>
+</div>
+
+<!-- KPI STRIP -->
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Total allocation received</div>
+    <div class="kpi-value">1,328 τ</div>
+    <div class="kpi-sub">~$565K · May 23 2025 · direct transfer from Owner44</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Total cashed out</div>
+    <div class="kpi-value a">1,556 τ</div>
+    <div class="kpi-sub">~$554K · Aug 20–27 2025 · 3 transactions</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Residual (still in protocol)</div>
+    <div class="kpi-value b">899 τ</div>
+    <div class="kpi-sub">~$235K · 21,095 α · passive emissions post-Aug</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Total value received</div>
+    <div class="kpi-value g">2,455 τ</div>
+    <div class="kpi-sub">~$789K · realized + unrealized · +85% on original allocation</div>
+  </div>
+</div>
+
+<!-- INSIGHT CARDS -->
+<div class="insights-grid">
+
+  <div class="insight-card">
+    <div class="ic-num">01 · What "off" means on-chain</div>
+    <div class="ic-title">No new Owner44 → Yuma transfers since May 2025</div>
+    <div class="ic-body">The last explicit allocation from Owner44 to Yuma was May 23 2025 — a matched 1,327.93 τ unstake/restake. Every subsequent Owner44 liquidation (Jul, Aug, Jan) went entirely to Owner44 with zero routed to Yuma. The Jan 2026 event (4,638 τ — the largest single liquidation in SN44's history) confirmed the arrangement had fully stopped. Yuma's residual 899 τ is passive validator emissions, not new allocations.</div>
+    <div class="ic-stat r">Last allocation: May 23 2025 · 9 months ago</div>
+  </div>
+
+  <div class="insight-card">
+    <div class="ic-num">02 · Yuma's actual return</div>
+    <div class="ic-title">Received 1,328 τ, total value 2,455 τ — +85% on allocated capital</div>
+    <div class="ic-body">Owner44 transferred 1,327.93 τ worth of SCORE alpha to Yuma in May 2025. Between May and August, Yuma's position grew from 53,217 α to 83,557 α as subnet emissions accrued — a gain of ~30,340 α (~228 τ net at exit price). Yuma liquidated for 1,556 τ in August. Their remaining 21,095 α (899 τ) has since grown further from validator emissions. Total Yuma yield: ~2,455 τ on a 1,328 τ base.</div>
+    <div class="ic-stat g">+85% on allocated capital · 3-month hold</div>
+  </div>
+
+  <div class="insight-card">
+    <div class="ic-num">03 · Why it ended</div>
+    <div class="ic-title">Arrangement stopped before the Jan 2026 peak liquidation</div>
+    <div class="ic-body">Yuma received nothing from the Jan 2026 liquidation — 4,638 τ (~$1.19M) that went 100% to Owner44. At $257/TAO in Jan vs $426 in May, the owner may have decided the cost of the allocation at that price was too high relative to Yuma's value add. Alternatively, a formal agreement lapsed. The on-chain record does not show a clean exit event — no explicit unstake of Yuma's remaining 899 τ — suggesting the relationship dissolved quietly rather than with a formal close.</div>
+    <div class="ic-stat n">Jan 2026 liquidation: 4,638 τ · 0 τ to Yuma</div>
+  </div>
+
+</div>
+
+<!-- WATERFALL -->
+<div class="waterfall-wrap">
+  <div class="wf-label">Yuma / DCG P&amp;L from SN44 — cumulative flow</div>
+
+  <!-- Row: Initial allocation -->
+  <div class="wf-row">
+    <div class="wf-date">May 23 2025</div>
+    <div class="wf-desc">Allocation received
+      <span class="sub">Owner44 → Yuma · matched unstake/restake · 53,217 α</span>
+    </div>
+    <div class="wf-bar-area">
+      <div class="wf-bar in" style="width:54.1%">
+        <span class="wf-val in">+1,327.93 τ</span>
+        <span class="wf-usd">~$565K at $426</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row: Emissions accrued -->
+  <div class="wf-row">
+    <div class="wf-date">May–Aug 2025</div>
+    <div class="wf-desc">Emissions accrued on position
+      <span class="sub">53,217 α → 83,557 α · +30,340 α · validator cut</span>
+    </div>
+    <div class="wf-bar-area">
+      <div class="wf-bar in" style="width:9.3%">
+        <span class="wf-val in">+227.68 τ</span>
+        <span class="wf-usd">~$81K</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="wf-divider">
+
+  <!-- Row: Liquidated -->
+  <div class="wf-row">
+    <div class="wf-date">Aug 20–27 2025</div>
+    <div class="wf-desc">Liquidated — 3 transactions
+      <span class="sub">83,557 α → 1,555.61 τ · Yuma hotkey · TAO $354–$356</span>
+    </div>
+    <div class="wf-bar-area" style="position:relative">
+      <div class="wf-bar out" style="width:63.4%;left:0">
+        <span class="wf-val out">−1,555.61 τ realised</span>
+        <span class="wf-usd">~$554K cash</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row: No allocation Jan 2026 -->
+  <div class="wf-row">
+    <div class="wf-date">Jan 16–22 2026</div>
+    <div class="wf-desc">Owner44 liquidates 4,638 τ
+      <span class="sub">Zero routed to Yuma · revenue share confirmed off</span>
+    </div>
+    <div class="wf-bar-area">
+      <div class="wf-bar off" style="width:20%">
+        <span class="wf-val off">0 τ to Yuma</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row: Residual -->
+  <div class="wf-row">
+    <div class="wf-date">May 20 2026</div>
+    <div class="wf-desc">Residual — still in protocol
+      <span class="sub">21,095 α · passive validator emissions post-Aug · not cashed out</span>
+    </div>
+    <div class="wf-bar-area">
+      <div class="wf-bar hold" style="width:36.6%">
+        <span class="wf-val hold">899 τ unrealised</span>
+        <span class="wf-usd">~$235K at $262</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total -->
+  <div class="wf-total-row" style="margin-top:16px;padding-top:14px;border-top:2px solid #111;display:flex;gap:0;align-items:flex-start">
+    <div style="width:360px;flex-shrink:0">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#aaa;margin-bottom:4px">Total value received by Yuma / DCG</div>
+      <div style="font-size:22px;font-weight:700;color:#1a7a3c">2,455 τ · ~$789K</div>
+      <div style="font-size:10px;color:#aaa;margin-top:3px">1,556 τ realised (~$554K) + 899 τ unrealised (~$235K)</div>
+    </div>
+    <div style="flex:1;padding-left:32px;border-left:1px solid #e8e8e8;margin-left:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Cost to Owner44</div>
+          <div style="font-size:15px;font-weight:700;color:#c0392b">−1,328 τ</div>
+          <div style="font-size:10px;color:#aaa">~$565K at May prices</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Yuma gross yield</div>
+          <div style="font-size:15px;font-weight:700;color:#1a7a3c">+85%</div>
+          <div style="font-size:10px;color:#aaa">on 1,328 τ base · 3-month active</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Revenue share %</div>
+          <div style="font-size:15px;font-weight:700;color:#1a4fa0">~11.3%</div>
+          <div style="font-size:10px;color:#aaa">of gross SN44 unstaked (active period)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline-wrap">
+  <div class="tl-label">Arrangement timeline</div>
+  <div class="tl-line">
+
+    <div class="tl-item">
+      <div class="tl-dot g"></div>
+      <div class="tl-date">Feb 13 2025</div>
+      <div class="tl-title">dTAO launches · SCORE alpha AMM goes live</div>
+      <div class="tl-body">Owner seeds the AMM with 1,963 τ. Yuma's hotkey not yet involved — no staking events on SN44 for Yuma at this point. Owner earns the 18% subnet owner cut as alpha begins to accumulate in Owner44 hotkey.</div>
+      <div><span class="tl-tag b">dTAO launch</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot g"></div>
+      <div class="tl-date">May 22–23 2025</div>
+      <div class="tl-title">Revenue share begins — Owner routes allocation to Yuma</div>
+      <div class="tl-body">May 22: Owner44 does its first real liquidation — 556.41 τ. May 23: matched unstake/restake transfers 1,327.93 τ worth of SCORE alpha directly to Yuma's hotkey. Yuma receives 53,217 α. This is the only explicit allocation from Owner44 to Yuma on record.</div>
+      <div><span class="tl-tag g">+1,327.93 τ allocated</span> <span class="tl-tag n">53,217 α</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot a"></div>
+      <div class="tl-date">Jul–Aug 2025</div>
+      <div class="tl-title">Both parties liquidate — separately, different timing</div>
+      <div class="tl-body">Jul 21: Owner44 unstakes 2,503.62 τ (first large liquidation). Aug 20: Owner44 unstakes another 2,032.42 τ. Aug 27: Yuma liquidates its entire position in two transactions — 1,386.85 τ and 168.75 τ. Yuma exits at $354–$356/TAO, 3 months after receiving the allocation at $426. Their 53,217 α had grown to 83,557 α from emissions — they exit with 1,555.61 τ vs 1,327.93 τ received.</div>
+      <div><span class="tl-tag a">1,556 τ cashed out · ~$554K</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot n"></div>
+      <div class="tl-date">Sep–Dec 2025</div>
+      <div class="tl-title">No activity — neither party touches SN44 staking</div>
+      <div class="tl-body">Four months of silence on the staking ledger. Only event: Nov 25 Owner44 stakes a tiny 0.22 τ into Bitcast (SN93) — a minor satellite. No new allocation to Yuma. Yuma's residual position accrues emissions passively.</div>
+      <div><span class="tl-tag n">Quiet period</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot r"></div>
+      <div class="tl-date">Jan 16–22 2026</div>
+      <div class="tl-title">Owner44 largest liquidation — zero routed to Yuma</div>
+      <div class="tl-body">4,638 τ (~$1.19M) unstaked from Owner44 across two transactions. This is the single largest SN44 liquidation event on record. Yuma receives 0 τ. The on-chain absence of any Yuma allocation confirms the revenue share arrangement had ended prior to this event. Revenue share is definitively off by this point.</div>
+      <div><span class="tl-tag r">Revenue share confirmed OFF</span> <span class="tl-tag n">0 τ to Yuma</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot b"></div>
+      <div class="tl-date">May 20 2026</div>
+      <div class="tl-title">Yuma still holds residual position — 899 τ, not yet exited</div>
+      <div class="tl-body">Yuma's hotkey holds 21,095 SCORE α = 899 τ (~$235K). This has grown from passive validator emissions since the Aug 2025 liquidation. No explicit unstake event after Aug 27 2025. Yuma has not fully exited — the residual position earns yield but no new capital is being allocated by the owner.</div>
+      <div><span class="tl-tag b">899 τ unrealised · ~$235K</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CHART: Monthly Yuma activity -->
+<div class="section">
+  <div class="section-label">Activity chart</div>
+  <div class="section-title">Yuma / DCG Monthly Flow from SN44</div>
+  <div class="section-sub">TAO equivalent · green = allocated in or emissions · amber = unstaked / cashed out</div>
+  <div class="legend">
+    <div class="legend-item"><div class="dot" style="background:rgba(26,122,60,0.8)"></div>Received (allocation + emissions)</div>
+    <div class="legend-item"><div class="dot" style="background:rgba(176,94,0,0.8)"></div>Unstaked (cashed out)</div>
+  </div>
+  <canvas id="yumaChart" height="100"></canvas>
+</div>
+
+<!-- RAW EVENTS TABLE -->
+<div class="section">
+  <div class="section-label">Raw records</div>
+  <div class="section-title">All Yuma / DCG Staking Events — SN44</div>
+  <div class="section-sub" style="margin-bottom:8px">5 events · 1 StakeAdded · 3 StakeRemoved · 1 residual position</div>
+  <button class="toggle-btn" id="t1btn" onclick="toggleTable('t1')">
+    <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+    Show event records
+  </button>
+  <div class="table-wrap" id="t1">
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Event</th><th>TAO</th><th>Alpha</th><th>α Price</th><th>TAO Price</th><th>USD est.</th><th>Note</th></tr>
+      </thead>
+      <tbody id="evtBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <strong>Data:</strong> TAO app API (<code>tao.app/api/beta/portfolio/</code>) · fetched 20 May 2026.
+  Yuma / DCG = Yuma, a DCG Company · hotkey 5DXdHixxtCvo… · validator on SN44.
+  "Revenue share OFF" inferred from absence of Owner44 → Yuma allocations after May 23 2025 and confirmed by Jan 2026 liquidation routing 100% to Owner44.
+  Residual 899 τ reflects passive validator emissions accrued post-Aug 2025 liquidation — not new owner allocations.
+  USD values use CoinGecko monthly average TAO prices.
+</div>
+
+<script>
+const TAO_PRICE = {
+  "2025-02":400,"2025-03":295,"2025-04":375,"2025-05":426,
+  "2025-06":366,"2025-07":386,"2025-08":356,"2025-09":330,"2025-10":375,
+  "2025-11":354,"2025-12":257,"2026-01":257,"2026-02":177,"2026-03":248,
+  "2026-04":271,"2026-05":262
+};
+
+// Chart data — Yuma only
+const MONTHS = ["2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01"];
+const LABELS = ["May 25","Jun 25","Jul 25","Aug 25","Sep 25","Oct 25","Nov 25","Dec 25","Jan 26"];
+const p = m => TAO_PRICE[m] || 0;
+
+// Received: allocation in May + ~228 τ emissions inferred to accrue May-Aug (spread across months)
+const yumaIn  = [
+  Math.round(1327.93 * p("2025-05")), // May: allocation
+  0, 0,
+  Math.round(227.68 * p("2025-08")),  // Aug: emissions accrued shown at exit month
+  0, 0, 0, 0, 0
+];
+const yumaOut = [
+  0, 0, 0,
+  Math.round(1555.606 * p("2025-08")), // Aug: cashed out
+  0, 0, 0, 0, 0
+];
+
+new Chart(document.getElementById('yumaChart'), {
+  data:{
+    labels: LABELS,
+    datasets:[
+      {type:'bar', data:yumaIn,  backgroundColor:'rgba(26,122,60,0.75)', stack:'s', label:'Received'},
+      {type:'bar', data:yumaOut.map(v => -v), backgroundColor:'rgba(176,94,0,0.75)', stack:'s', label:'Cashed out'},
+    ]
+  },
+  options:{
+    responsive:true,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label(c){const v=c.raw; return ` ${c.dataset.label}: ${v<0?'-':''}$${Math.abs(v/1000).toFixed(0)}K`;}}}
+    },
+    scales:{
+      x:{stacked:true, grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:9,family:'Arial'},color:'#aaa'}},
+      y:{stacked:true,
+         ticks:{font:{size:9},color:'#888',callback:v=>`$${(v/1000).toFixed(0)}K`},
+         grid:{color:'rgba(0,0,0,0.04)'}},
+    }
+  }
+});
+
+// Toggle
+function toggleTable(id) {
+  const wrap = document.getElementById(id);
+  const btn  = document.getElementById(id+'btn');
+  const open = wrap.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.childNodes.forEach(n => { if(n.nodeType===3) n.textContent = open ? ' Hide event records' : ' Show event records'; });
+}
+
+// Events
+const EVENTS = [
+  {d:"Current",    ev:"Position",     tau:899,      alpha:21095,   aPrice:0.0426, note:"Residual · passive emissions since Aug 2025 · not yet exited"},
+  {d:"2025-08-27", ev:"StakeRemoved", tau:1386.853, alpha:74492.48,aPrice:0.0186, note:"Yuma full exit — tranche 1"},
+  {d:"2025-08-27", ev:"StakeRemoved", tau:168.753,  alpha:9064.24, aPrice:0.0186, note:"Yuma full exit — tranche 2"},
+  {d:"2025-05-23", ev:"StakeAdded",   tau:1327.93,  alpha:53217.26,aPrice:0.025,  note:"Allocation received from Owner44 · matched pair"},
+];
+
+const sb = document.getElementById('evtBody');
+EVENTS.forEach(s => {
+  const m = s.d.length > 7 ? s.d.slice(0,7) : "2026-05";
+  const taoP = TAO_PRICE[m] || 262;
+  const usd = Math.round(s.tau * taoP);
+  const isR = s.ev === 'StakeRemoved';
+  const isPos = s.ev === 'Position';
+  const tr = document.createElement('tr');
+  if (s.tau > 1000) tr.className = 'hl';
+  tr.innerHTML = `
+    <td>${s.d}</td>
+    <td><span class="badge ${isR?'rem':isPos?'':'add'}" style="${isPos?'background:#eef2fc;color:#1a4fa0':''}">${s.ev}</span></td>
+    <td class="${isR||isPos?'pos':'neg'}">${isR?'+':isPos?'':'+'  }${s.tau.toLocaleString('en',{maximumFractionDigits:3})} τ</td>
+    <td style="color:#aaa;font-size:10px">${s.alpha.toLocaleString('en',{maximumFractionDigits:0})} α</td>
+    <td style="color:#aaa;font-size:10px">$${s.aPrice.toFixed(4)}</td>
+    <td style="color:#aaa;font-size:10px">$${taoP}</td>
+    <td class="${isR||isPos?'pos':'neg'}">${isR?'+':isPos?'':'+'  }$${usd.toLocaleString()}</td>
+    <td style="font-size:10px;color:#999">${s.note}</td>
+  `;
+  sb.appendChild(tr);
+});
+</script>
+</body>
+</html>
