@@ -198,14 +198,14 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
     <div class="kpi-sub">~$3.06M · avg α price 0.020984 T</div>
   </div>
   <div class="kpi">
-    <div class="kpi-label">Unrealized PNL</div>
+    <div class="kpi-label">Mark-to-market gain ①</div>
     <div class="kpi-value g">+5,710 τ</div>
-    <div class="kpi-sub">~$1.54M on remaining position</div>
+    <div class="kpi-sub">~$1.54M · price appreciation on held emissions</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Total profit (all-in)</div>
     <div class="kpi-value g">+17,042 τ</div>
-    <div class="kpi-sub">~$4.61M · realized + unrealized</div>
+    <div class="kpi-sub">~$4.61M · extracted + mark-to-market ①</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">NOVA price</div>
@@ -229,9 +229,9 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
 
   <div class="insight-card">
     <div class="ic-num">02 · Sold before the rally</div>
-    <div class="ic-title">Avg sell price was 0.020984 T/α — below today's 0.024115 T/α</div>
-    <div class="ic-body">The weighted average realized price (0.020984 T) tells us most selling happened when NOVA was cheaper in TAO terms. Today's price is 15% above their avg realized. Unrealized PNL of +5,710 τ reflects this gap — the remaining 469,899 α is marked up above cost. The May 13–21 rally (+62% in USD, +56% vs TAO) post-dates most of the extraction.</div>
-    <div class="ic-stat a">Avg sell: 0.020984 T · Current: 0.024115 T · +15%</div>
+    <div class="ic-title">Avg emission receipt price: 0.020984 T/α — below today's 0.024115 T/α</div>
+    <div class="ic-body">tao.app assigns a cost basis at the AMM price each time emission alpha was credited — this is <strong>not a purchase price</strong>, no TAO was spent. The 0.020984 T figure means most alpha was received when NOVA was cheaper. The +5,710 τ mark-to-market gain simply reflects price appreciation on held emissions since they were credited. The May 13–21 rally (+62%) happened after most of the extraction.</div>
+    <div class="ic-stat a">Avg receipt: 0.020984 T · Current: 0.024115 T · +15% MTM</div>
   </div>
 
   <div class="insight-card">
@@ -309,12 +309,12 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
       <div class="stat-val"><span style="color:#1a4fa0;font-weight:700;">11,332 τ</span> &nbsp;~$3.06M</div>
     </div>
     <div class="stat-row">
-      <div class="stat-label">Unrealized PNL on remaining position<span class="sub">Current value minus avg buy price (0.020984 T/α)</span></div>
+      <div class="stat-label">Mark-to-market gain on remaining position<span class="sub">⚠ Not a purchase gain — alpha was received as emissions, not bought. tao.app assigns a cost basis at the AMM price when emissions were credited. This reflects appreciation of received alpha since credit date.</span></div>
       <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:33.5%;background:rgba(26,122,60,0.7)"></div></div>
       <div class="stat-val"><span style="color:#1a7a3c;font-weight:700;">+5,710 τ</span> &nbsp;~$1.54M</div>
     </div>
     <div class="stat-row">
-      <div class="stat-label">All-in total profit (realized + unrealized)<span class="sub">From zero cost basis emissions</span></div>
+      <div class="stat-label">All-in total profit (extracted + mark-to-market)<span class="sub">① MTM gain is price appreciation on emission-received alpha — not return on deployed capital. tao.app uses AMM receipt price as cost basis.</span></div>
       <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:100%;background:rgba(26,122,60,0.5);border:1px dashed rgba(26,122,60,0.4)"></div></div>
       <div class="stat-val"><span style="color:#1a7a3c;font-weight:700;">+17,042 τ</span> &nbsp;~$4.61M</div>
     </div>
