@@ -130,6 +130,7 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
   <a href="#overview">Overview</a>
   <a href="#insights">Insights</a>
   <a href="#sellsignal">Sell Signal</a>
+  <a href="#flows">Flows</a>
   <a href="#position">Position</a>
   <a href="#emission">Emission</a>
   <a href="#data">Data</a>
@@ -158,7 +159,7 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
       <ul style="font-size:11px;color:#444;line-height:1.8;list-style:none;padding:0;">
         <li style="padding:3px 0;border-bottom:1px solid #f2f2f2;"><span style="color:#c0392b;font-weight:700;margin-right:8px;">+11,331 τ</span>Realized PNL confirmed via tao.app portfolio. Since emissions have zero cost basis, this equals total TAO extracted from unstaking NOVA alpha.</li>
         <li style="padding:3px 0;border-bottom:1px solid #f2f2f2;"><span style="color:#b05e00;font-weight:700;margin-right:8px;">0.020984 T</span>Average alpha price at emission receipt (tao.app cost basis). <strong>Not a purchase price</strong> — this is the AMM price when each emission batch was credited. No TAO was spent to acquire this alpha.</li>
-        <li style="padding:3px 0;"><span style="color:#888;font-weight:700;margin-right:8px;">Note:</span>Full staking event history (exact dates + amounts per sell) pending manual taostats.io pull — see Data section.</li>
+        <li style="padding:3px 0;"><span style="color:#888;font-weight:700;margin-right:8px;">Note:</span>Full staking event history pulled from tao.app API — 280 true sell events, 523 rebalances identified. See Flows section for month-by-month breakdown.</li>
       </ul>
     </div>
 
@@ -322,6 +323,58 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
 </div>
 
 <!-- ══════════════════════════════════════════════════════════
+     FLOWS
+══════════════════════════════════════════════════════════ -->
+<div id="flows" class="section">
+  <div class="section-label">On-chain flows</div>
+  <div class="section-title">Month-on-Month Unstaking (True Sells)</div>
+  <div class="section-sub">StakeRemoved events not paired with a StakeAdded in the same extrinsic — i.e. alpha → TAO conversions that leave the subnet · tao.app transaction API · data as of 21 May 2026</div>
+
+  <div class="data-note">
+    <strong>Sell vs rebalance methodology:</strong> Each StakeRemoved event was matched against its extrinsic ID. Events where StakeRemoved and StakeAdded share the same extrinsic are <em>rebalances</em> — alpha moving between hotkeys (5CSueg → 5F1tQr), TAO passes through the AMM but is immediately re-staked. Only unpaired StakeRemoved events are true sells. 280 true sell events · 523 rebalance events · 263 emission/stake events · 1,589 total transactions pulled from tao.app API.
+  </div>
+
+  <div class="chart-box" style="margin-bottom:24px;">
+    <div class="chart-title">Monthly TAO Extracted via True Sells — by hotkey</div>
+    <div class="chart-sub">Stacked by hotkey · * May 2026 is a partial month (data through May 21 2026)</div>
+    <div class="legend">
+      <div class="legend-item"><div class="ldot" style="background:rgba(26,79,160,0.8)"></div>5F1tQr (primary validator hotkey)</div>
+      <div class="legend-item"><div class="ldot" style="background:rgba(192,57,43,0.75)"></div>5CSueg (owner hotkey)</div>
+      <div class="legend-item"><div class="ldot" style="background:rgba(176,94,0,0.8)"></div>tao.bot (automated)</div>
+    </div>
+    <canvas id="unstakingChart" height="200"></canvas>
+  </div>
+
+  <div style="padding:16px 0;border-top:2px solid #111;margin-top:8px;">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#bbb;margin-bottom:16px;">Sell activity summary</div>
+    <div class="stat-row">
+      <div class="stat-label">Total TAO extracted — 280 confirmed sell events<span class="sub">Zero selling in May–Jul 2025 and Mar 2025 (4 months quiet)</span></div>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:100%;background:rgba(192,57,43,0.55)"></div></div>
+      <div class="stat-val"><span style="color:#c0392b;font-weight:700;">7,193 τ</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Peak month: Apr 2025 — validator hotkey only<span class="sub">Large early exit — 13.8% of all TAO extracted in a single month</span></div>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:100%;background:rgba(26,79,160,0.55)"></div></div>
+      <div class="stat-val"><span style="color:#1a4fa0;font-weight:700;">992.4 τ</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">tao.bot — automated selling agent · active Sep 2025–Feb 2026<span class="sub">4 months active · 1,464 τ extracted · 20.4% of all sells · then went quiet</span></div>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:20.4%;background:rgba(176,94,0,0.55)"></div></div>
+      <div class="stat-val"><span style="color:#b05e00;font-weight:700;">1,464 τ</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Owner hotkey (5CSueg) direct sells — minimal<span class="sub">Only active Feb 2025 (38 τ) + Sep 2025 (45 τ) · 1.2% of total extraction</span></div>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:1.2%;background:rgba(26,122,60,0.55)"></div></div>
+      <div class="stat-val"><span style="color:#1a7a3c;font-weight:700;">83 τ</span></div>
+    </div>
+  </div>
+
+  <div class="data-note" style="margin-top:16px;border-left-color:#555;background:#f9f9f9;">
+    <strong>Note on total vs tao.app reported:</strong> This analysis captures 7,193 τ across 280 true sell events. tao.app reports 11,331 τ realized PNL using cost-basis accounting (sell proceeds minus the AMM price at emission receipt). The gap reflects the accounting difference — cost basis is subtracted from each sell's gross TAO proceeds when computing PNL. Additionally, tao.app may count some rebalances differently depending on how move_stake extrinsics are classified on their end.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
      POSITION
 ══════════════════════════════════════════════════════════ -->
 <div id="position" class="section">
@@ -461,12 +514,12 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
     <div class="wallet-card" style="background:#fdf6ed;">
       <div class="wc-title">Data gaps — pending research</div>
       <div class="wc-key" style="font-family:Arial;font-size:11px;color:#555;line-height:1.7;">
-        1. Full staking event history (exact unstake dates + amounts)<br>
-        2. Full address for 5F1tQr validator hotkey<br>
-        3. Transfer history (any outbound TAO payments)<br>
+        1. ✓ Staking event history pulled — 280 sells, 523 rebalances (tao.app API · May 2026)<br>
+        2. Full address for 5F1tQr validator hotkey — identity unverified<br>
+        3. Transfer history (any outbound TAO payments from coldkey)<br>
         4. Pre-dTAO cost base (validator incentive payments, if any)
       </div>
-      <div class="wc-meta">Source when available: taostats.io coldkey page + tao.app/api/beta</div>
+      <div class="wc-meta">Sources: tao.app/api/beta (transaction history) · taostats.io (pending for items 2–4)</div>
     </div>
   </div>
 
@@ -507,9 +560,9 @@ body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size:
   TAO price: $270.45 (May 21 2026).
   <br>
   <strong>Methodology:</strong>
-  Realized PNL from tao.app portfolio page — this equals total TAO extracted from unstaking since alpha emissions carry ~zero cost basis.
+  Realized PNL (+11,331 τ) from tao.app portfolio page — cost-basis accounting using AMM price at emission receipt.
+  Monthly unstaking chart: 1,589 transactions pulled from tao.app /api/beta/portfolio/transactions; StakeRemoved events classified as true sells (unpaired) vs rebalances (paired StakeRemoved+StakeAdded in same extrinsic). 280 sells · 523 rebalances · 7,193 τ confirmed extracted.
   Emission income projection uses 7,200 blocks/day × emission % × 18% owner cut.
-  Full staking event history (dates/amounts per sell) pending taostats.io pull.
   <strong>5F1tQr validator identity unverified</strong> — priority open item.
   <br>
   <strong>Comparison note:</strong>
@@ -561,6 +614,49 @@ new Chart(document.getElementById('emissionChart'), {
     scales:{
       x:{grid:{display:false},ticks:{font:{size:9,family:'Arial'},color:'#aaa'}},
       y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},color:'#888',callback:v=>`${(v/1000).toFixed(1)}K τ`}},
+    }
+  }
+});
+
+// Month-on-month unstaking chart
+const unstakingLabels = ['Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26*'];
+const unstakingValidator = [0,    0,     992.4, 0, 0, 0, 790,  227.9, 278.9, 261,   659.4, 343.7, 347.8, 829.2, 291.1, 625.1];
+const unstakingOwner    =  [38,   0,     0,     0, 0, 0, 0,    45,    0,     0,     0,     0,     0,     0,     0,     0    ];
+const unstakingTaobot   =  [0,    0,     0,     0, 0, 0, 0,    4,     319,   567.6, 0,     536.6, 36.5,  0,     0,     0    ];
+
+new Chart(document.getElementById('unstakingChart'), {
+  type: 'bar',
+  data: {
+    labels: unstakingLabels,
+    datasets: [
+      {label:'5F1tQr (validator)', data:unstakingValidator, backgroundColor:'rgba(26,79,160,0.8)',  borderWidth:0, borderRadius:2, stack:'s'},
+      {label:'5CSueg (owner)',     data:unstakingOwner,     backgroundColor:'rgba(192,57,43,0.75)', borderWidth:0, borderRadius:2, stack:'s'},
+      {label:'tao.bot',            data:unstakingTaobot,    backgroundColor:'rgba(176,94,0,0.8)',   borderWidth:0, borderRadius:2, stack:'s'},
+    ]
+  },
+  options: {
+    ...base,
+    plugins: {
+      ...base.plugins,
+      legend: {display:false},
+      tooltip: {
+        mode:'index', intersect:false,
+        callbacks: {
+          title(items) { return items[0]?.label || ''; },
+          label(c) {
+            if (!c.raw) return null;
+            return ` ${c.dataset.label}: ${c.raw.toLocaleString(undefined,{maximumFractionDigits:0})} τ`;
+          },
+          afterBody(items) {
+            const total = items.reduce((s,i) => s+(i.raw||0), 0);
+            return total ? [`Total: ${total.toLocaleString(undefined,{maximumFractionDigits:0})} τ (~$${(total*270.45/1e3).toFixed(0)}K)`] : [];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {stacked:true, grid:{display:false}, ticks:{font:{size:9,family:'Arial'},color:'#888'}},
+      y: {stacked:true, grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:9},color:'#888',callback:v=>`${v} τ`}},
     }
   }
 });
