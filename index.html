@@ -240,13 +240,13 @@ tr.hl td { background: #fffbf2; }
 <!-- CHARTS -->
 <div class="section">
   <div class="section-label">On-chain flows</div>
-  <div class="section-title">Monthly TAO Activity — Transfers &amp; Alpha Staking</div>
-  <div class="section-sub">All values in USD equivalent using monthly average TAO price · Transfers = direct wallet sends/receives · Staking = alpha AMM add/remove events</div>
+  <div class="section-title">Monthly TAO Activity — Transfers &amp; Alpha</div>
+  <div class="section-sub">All values in USD equivalent using monthly average TAO price · Transfers = direct wallet sends/receives · Alpha = SCORE AMM buys and sells</div>
 
   <div class="chart-grid">
     <div class="chart-box">
-      <div class="chart-title">Direct wallet transfers (in / out)</div>
-      <div class="chart-sub">Excludes alpha staking events</div>
+      <div class="chart-title">TAO Transfers</div>
+      <div class="chart-sub">On-chain sends &amp; receives</div>
       <div class="legend">
         <div class="legend-item"><div class="dot" style="background:#1a7a3c;opacity:.85"></div>TAO received</div>
         <div class="legend-item"><div class="dot" style="background:#c0392b;opacity:.85"></div>TAO sent</div>
@@ -268,8 +268,8 @@ tr.hl td { background: #fffbf2; }
     </div>
 
     <div class="chart-box">
-      <div class="chart-title">Alpha staking events (TAO equivalent)</div>
-      <div class="chart-sub">StakeRemoved = alpha sold for TAO · StakeAdded = TAO deployed into alpha</div>
+      <div class="chart-title">Alpha Buys &amp; Sells</div>
+      <div class="chart-sub">StakeRemoved = sold alpha for TAO · StakeAdded = bought alpha with TAO</div>
       <div class="legend">
         <div class="legend-item"><div class="dot" style="background:#b05e00;opacity:.85"></div>Unstaked (TAO in)</div>
         <div class="legend-item"><div class="dot" style="background:#1a4fa0;opacity:.85"></div>Staked (TAO out)</div>
@@ -312,8 +312,8 @@ tr.hl td { background: #fffbf2; }
 <!-- STAKING TABLE (collapsible) -->
 <div class="section">
   <div class="section-label">Raw records</div>
-  <div class="section-title">Alpha Staking Events</div>
-  <div class="section-sub" style="margin-bottom:8px">35 total staking events · StakeAdded and StakeRemoved</div>
+  <div class="section-title">Alpha Buys &amp; Sells</div>
+  <div class="section-sub" style="margin-bottom:8px">35 total events · StakeAdded and StakeRemoved</div>
   <button class="toggle-btn" id="t2btn" onclick="toggleTable('t2')">
     <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
     Show staking records
