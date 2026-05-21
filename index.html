@@ -406,12 +406,12 @@ tr.transfer-row td { background: #f0f8f3; }
 
     <!-- ALPHA BY HOTKEY -->
     <div>
-      <div class="chart-title">Alpha Buys &amp; Sells — by Party</div>
-      <div class="chart-sub">Above zero = sold SN44 (alpha → TAO) · Below zero = bought SN44 (TAO → alpha) · cumulative net (right)</div>
+      <div class="chart-title">Alpha Unstakes &amp; Stakes — by Party</div>
+      <div class="chart-sub">Above zero = unstaked SN44 alpha → TAO (via AMM) · Below zero = staked TAO → SN44 alpha · cumulative net (right)</div>
       <div class="legend">
-        <div class="legend-item"><div class="ldot" style="background:rgba(176,94,0,0.8)"></div>Sold SN44 — Owner44</div>
-        <div class="legend-item"><div class="ldot" style="background:rgba(26,122,60,0.8)"></div>Sold SN44 — Yuma/DCG</div>
-        <div class="legend-item"><div class="ldot" style="background:rgba(26,79,160,0.7)"></div>Bought SN44</div>
+        <div class="legend-item"><div class="ldot" style="background:rgba(176,94,0,0.8)"></div>Unstaked SN44 — Owner44</div>
+        <div class="legend-item"><div class="ldot" style="background:rgba(26,122,60,0.8)"></div>Unstaked SN44 — Yuma/DCG</div>
+        <div class="legend-item"><div class="ldot" style="background:rgba(26,79,160,0.7)"></div>Staked to SN44</div>
         <div class="legend-item"><div class="ldash"></div>Cumulative net (right)</div>
       </div>
       <div style="position:relative;height:175px;"><canvas id="alphaChart"></canvas></div>
@@ -833,10 +833,10 @@ new Chart(document.getElementById('transferChart'), {
 new Chart(document.getElementById('alphaChart'), {
   plugins:[dTAODivider],
   data:{labels:LABELS,datasets:[
-    {type:'bar', data:ownerData, backgroundColor:'rgba(176,94,0,0.8)',   yAxisID:'y', order:2, stack:'s', label:'Sold — Owner44'},
-    {type:'bar', data:yumaData,  backgroundColor:'rgba(26,122,60,0.8)',  yAxisID:'y', order:2, stack:'s', label:'Sold — Yuma/DCG'},
-    {type:'bar', data:otherData, backgroundColor:'rgba(136,136,136,0.45)',yAxisID:'y', order:2, stack:'s', label:'Sold — Other'},
-    {type:'bar', data:addData,   backgroundColor:'rgba(26,79,160,0.7)',  yAxisID:'y', order:2, stack:'s', label:'Bought SN44'},
+    {type:'bar', data:ownerData, backgroundColor:'rgba(176,94,0,0.8)',   yAxisID:'y', order:2, stack:'s', label:'Unstaked — Owner44'},
+    {type:'bar', data:yumaData,  backgroundColor:'rgba(26,122,60,0.8)',  yAxisID:'y', order:2, stack:'s', label:'Unstaked — Yuma/DCG'},
+    {type:'bar', data:otherData, backgroundColor:'rgba(136,136,136,0.45)',yAxisID:'y', order:2, stack:'s', label:'Unstaked — Other'},
+    {type:'bar', data:addData,   backgroundColor:'rgba(26,79,160,0.7)',  yAxisID:'y', order:2, stack:'s', label:'Staked to SN44'},
     {type:'line',data:cumNet,    borderColor:'#333',borderDash:[4,3],borderWidth:1.5,pointRadius:1.5,tension:0.3,yAxisID:'y2',order:1,backgroundColor:'transparent',label:'Cumulative'},
   ]},
   options:{...base,
