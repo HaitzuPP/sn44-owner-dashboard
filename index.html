@@ -191,6 +191,28 @@ tr.transfer-row td { background: #f0f8f3; }
 .tag.empty  { background: #fdecea; color: #c0392b; }
 .tag.info   { background: #eef2fc; color: #1a4fa0; }
 
+/* ── SECTION QUESTION FORMAT ── */
+.section-q { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 12px; }
+.section-a { font-size: 12px; color: #444; line-height: 1.6; background: #f9f9f9; border-left: 3px solid #111; padding: 10px 16px; margin-bottom: 20px; border-radius: 0 2px 2px 0; }
+.section-a strong { color: #111; }
+.section-a.g { border-color: #1a7a3c; background: #f0f8f3; }
+.section-a.r { border-color: #c0392b; background: #fdf4f4; }
+.section-a.a { border-color: #b05e00; background: #fdf6ed; }
+
+/* ── KEY INSIGHT CALLOUT ── */
+.callout { padding: 16px 20px; border-radius: 3px; margin-top: 16px; }
+.callout-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; opacity: 0.6; }
+.callout-body { font-size: 14px; font-weight: 700; line-height: 1.5; color: #111; }
+.callout-sub { font-size: 11px; font-weight: 400; color: #555; margin-top: 5px; line-height: 1.6; }
+.callout.r { background: rgba(192,57,43,0.07); border: 1.5px solid rgba(192,57,43,0.35); }
+.callout.r .callout-label { color: #c0392b; }
+.callout.a { background: rgba(176,94,0,0.07); border: 1.5px solid rgba(176,94,0,0.35); }
+.callout.a .callout-label { color: #b05e00; }
+.callout.g { background: rgba(26,122,60,0.07); border: 1.5px solid rgba(26,122,60,0.35); }
+.callout.g .callout-label { color: #1a7a3c; }
+.callout.b { background: rgba(26,79,160,0.07); border: 1.5px solid rgba(26,79,160,0.35); }
+.callout.b .callout-label { color: #1a4fa0; }
+
 /* ── FOOTER ── */
 .footer { padding: 14px 32px; background: #f9f9f9; border-top: 1px solid #e8e8e8; font-size: 11px; color: #777; line-height: 1.7; }
 </style>
@@ -213,11 +235,11 @@ tr.transfer-row td { background: #f0f8f3; }
 <!-- STICKY NAV -->
 <nav class="nav">
   <a href="#overview">Overview</a>
-  <a href="#insights">Insights</a>
-  <a href="#flows">Flows</a>
-  <a href="#split">Emission Split</a>
-  <a href="#yuma" class="yuma-link">Yuma P&amp;L</a>
-  <a href="#data">Raw Data</a>
+  <a href="#insights">Key findings</a>
+  <a href="#flows">Spent vs extracted?</a>
+  <a href="#split">Who got paid?</a>
+  <a href="#yuma" class="yuma-link">Yuma still on?</a>
+  <a href="#data">Raw data</a>
   <div class="off-pill"><div class="dot"></div>Revenue share OFF</div>
 </nav>
 
@@ -347,11 +369,15 @@ tr.transfer-row td { background: #f0f8f3; }
      FLOWS
 ══════════════════════════════════════════════════════════ -->
 <div id="flows" class="section">
-  <div class="section-label">On-chain flows — two eras</div>
-  <div class="section-title">Pre-dTAO: Ops &amp; Setup &nbsp;·&nbsp; Post-dTAO: Systematic Alpha Extraction
-    <a href="#split" class="xlink">↓ Emission split by hotkey</a>
+  <div class="section-label">On-chain flows</div>
+  <div class="section-q">What did the owner spend to build SN44, and what have they extracted?</div>
+  <div class="section-a"><strong>Spent 3,151 τ (~$1.1M) before a single alpha token was earned. Extracted 10,597 τ (~$3.3M) net since dTAO launched.</strong> Pre-dTAO: monthly validator payments to hold the emission slot (1,188 τ, Sep 2024 – Jan 2025) plus AMM seed on launch day (1,963 τ, Feb 13 2025). Post-dTAO: four liquidation events — May, Jul, Aug 2025, Jan 2026. USD at monthly average TAO price.</div>
+
+  <div class="callout a">
+    <div class="callout-label">Key insight</div>
+    <div class="callout-body">The AMM seed is not a sunk cost — it is the investment that made all extraction possible.</div>
+    <div class="callout-sub">1,963 τ deployed on dTAO launch day → 10,597 τ extracted since. Without the seed, the SCORE alpha AMM has no liquidity and no price discovery. Every dollar of Owner44 extraction flows through the mechanism the owner funded first. ROI on the seed alone: 5.4×.</div>
   </div>
-  <div class="section-sub"><strong>Left:</strong> pre-dTAO wallet flows — funding, validator costs, AMM seed &nbsp;·&nbsp; <strong>Right:</strong> alpha AMM activity only, all of it post-dTAO &nbsp;·&nbsp; USD at monthly average TAO price</div>
 
   <div class="chart-grid">
     <!-- TRANSFERS -->
@@ -410,10 +436,8 @@ tr.transfer-row td { background: #f0f8f3; }
 ══════════════════════════════════════════════════════════ -->
 <div id="split" class="section">
   <div class="section-label">Emission split</div>
-  <div class="section-title">Who Received What — Gross Unstaked by Hotkey
-    <a href="#yuma" class="xlink g">↓ Yuma P&amp;L detail</a>
-  </div>
-  <div class="section-sub">All StakeRemoved events · gross values (same-day rebalancing pairs included)</div>
+  <div class="section-q">Who has received SCORE alpha emissions, and how was the split decided?</div>
+  <div class="section-a"><strong>Owner44 took 88.4% of all gross unstaked alpha (12,150 τ ~$4.1M). Yuma/DCG received 11.3% (1,556 τ) under an arrangement that is now confirmed off.</strong> One unknown hotkey took 0.3% (43 τ). The Yuma allocation was not automatic — it required an explicit matched transaction on May 23 2025 to transfer the position. Gross values include same-day rebalancing pairs.</div>
 
   <!-- ALLOCATION BARS -->
   <div style="margin-bottom:24px;">
@@ -440,8 +464,14 @@ tr.transfer-row td { background: #f0f8f3; }
     </div>
   </div>
 
+  <div class="callout b">
+    <div class="callout-label">Key insight</div>
+    <div class="callout-body">The matched pair on May 23 2025 is the on-chain fingerprint of a deliberate investor allocation.</div>
+    <div class="callout-sub">1,327.93 τ unstaked from Owner44. 1,327.93 τ staked to Yuma — identical amount, same day, opposite direction. Alpha cannot be sent like a token; the only way to transfer a position is to unstake and immediately restake. The identical figure is proof of intent, not coincidence.</div>
+  </div>
+
   <!-- MECHANISM FLOW -->
-  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#bbb;margin-bottom:8px;">May 23 2025 · On-chain allocation mechanism — matched unstake / restake</div>
+  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#bbb;margin-bottom:8px;margin-top:20px;">May 23 2025 · On-chain allocation mechanism — matched unstake / restake</div>
   <div style="font-size:11px;color:#888;margin-bottom:16px;">Alpha is bound to hotkeys — it can't be sent like a token. To allocate to an investor, the owner unstakes from their hotkey and immediately restakes to the investor's hotkey. The identical amount (1,327.93 τ) on the same day is the proof of intent.</div>
   <div class="flow-wrap">
     <div class="flow-node owner">
@@ -483,16 +513,15 @@ tr.transfer-row td { background: #f0f8f3; }
      YUMA P&L
 ══════════════════════════════════════════════════════════ -->
 <div id="yuma" class="section">
-  <div class="section-label">Yuma / DCG revenue share</div>
-  <div class="section-title">
-    Yuma P&amp;L from SN44
-    <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#c0392b;background:#fdecea;border:1px solid #e8a89a;border-radius:12px;padding:3px 10px;">
-      <span style="width:6px;height:6px;border-radius:50%;background:#c0392b;display:inline-block;"></span>Revenue share OFF
+  <div class="section-label">Yuma / DCG</div>
+  <div class="section-q">Is the Yuma/DCG revenue share arrangement still active?</div>
+  <div class="section-a r"><strong>No — confirmed off since Jan 2026.</strong> Yuma received a 1,327.93 τ allocation on May 23 2025, grew it +85% via emissions over 3 months, and liquidated in Aug 2025. The arrangement ran for one cycle. It has not been renewed.
+    <span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#c0392b;margin-top:6px;margin-left:0;">
+      <span style="width:6px;height:6px;border-radius:50%;background:#c0392b;display:inline-block;flex-shrink:0;"></span>Revenue share OFF &nbsp;·&nbsp;
     </span>
-    <a href="#flows" class="xlink" style="font-size:10px;">↑ Aug 2025 in chart</a>
-    <a href="#split" class="xlink g" style="font-size:10px;">↑ Allocation mechanism</a>
+    <a href="#flows" class="xlink" style="font-size:10px;vertical-align:middle;">↑ Aug 2025 in chart</a>
+    <a href="#split" class="xlink g" style="font-size:10px;vertical-align:middle;">↑ Allocation mechanism</a>
   </div>
-  <div class="section-sub">Last allocation: May 23 2025 · Last liquidation: Aug 27 2025 · Confirmed off: Jan 2026 (4,638 τ routed 100% to Owner44)</div>
 
   <!-- YUMA KPI ROW -->
   <div class="yuma-kpis">
@@ -546,6 +575,12 @@ tr.transfer-row td { background: #f0f8f3; }
     <div class="wf-date">May 20 2026</div>
     <div class="wf-desc">Residual — still in protocol<span class="sub">21,095 α · passive emissions post-Aug</span></div>
     <div class="wf-bar-area"><div class="wf-bar hold" style="width:37%"><span class="wf-val hold">899 τ unrealised</span><span class="wf-usd">~$235K at $262</span></div></div>
+  </div>
+
+  <div class="callout r">
+    <div class="callout-label">Key insight</div>
+    <div class="callout-body">Jan 2026's 4,638 τ liquidation — zero to Yuma — is the forensic proof the arrangement ended.</div>
+    <div class="callout-sub">This is not a disclosure or self-report. At the single largest liquidation event in SN44's history, Yuma received nothing. Had the arrangement been active, Yuma would have received ~11.3% (~524 τ). The on-chain absence is the evidence.</div>
   </div>
 
   <div style="margin-top:16px;padding-top:14px;border-top:2px solid #111;display:flex;align-items:flex-start;gap:0;">
