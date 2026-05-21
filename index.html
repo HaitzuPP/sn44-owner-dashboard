@@ -337,16 +337,16 @@ tr.transfer-row td { background: #f0f8f3; }
 
   <div class="insight-card">
     <div class="ic-num">03 · Cost base — AMM seed</div>
-    <div class="ic-title">The Feb 2025 spike was capital deployed, not a sunk cost</div>
-    <div class="ic-body">Feb 13 2025 — dTAO launch day — 1,963 τ (~$785K) in a single batch to 23+ addresses. This seeded the SCORE alpha AMM pool with initial TAO liquidity. Without it, the alpha token launches with no price. This is an investment, not an expense. The owner has since extracted ~$3.3M from that same pool. ROI on the seed is the entire story.</div>
-    <div class="ic-stat a">−1,963 τ · Feb 13 2025 · AMM seed</div>
+    <div class="ic-title">1,963 τ seeded the AMM. 10,597 τ came back. That's 5.4×.</div>
+    <div class="ic-body">Feb 13 2025 — dTAO launch day — 1,963 τ (~$785K) in a single batch to 23+ addresses seeded the SCORE alpha AMM pool. Without it, the alpha token has no price and no exit. Every dollar of Owner44 extraction since then flows through the mechanism the owner funded first. The AMM seed is the entire investment thesis — the rest is carry.</div>
+    <div class="ic-stat a">−1,963 τ in → +10,597 τ out · 5.4× · 11 months</div>
   </div>
 
   <div class="insight-card">
     <div class="ic-num">04 · Yuma investor allocation <a href="#yuma" class="xlink g">↓ P&amp;L</a></div>
-    <div class="ic-title">11.3% of gross emissions routed to DCG — arrangement now off</div>
-    <div class="ic-body">On May 23 2025, Owner44 unstaked 1,327.93 τ and Yuma staked 1,327.93 τ — same amount, same day, opposite direction. This matched pair is the on-chain fingerprint of an intentional investor allocation. Yuma grew the position via emissions and liquidated 1,556 τ (~$554K) in Aug. Jan 2026's 4,638 τ liquidation went 100% to Owner44 — confirming the arrangement had ended.</div>
-    <div class="ic-stat g">1,556 τ cashed · 899 τ residual · +85% yield · <a href="#split">mechanism ↓</a></div>
+    <div class="ic-title">One cycle. Never renewed.</div>
+    <div class="ic-body">Yuma received exactly one allocation — May 23 2025 — held for three months, and cashed out in Aug at +85%. Then nothing. No second tranche, no re-allocation at the Jul or Aug or Jan liquidations. The arrangement ran for one emission cycle and was not renewed. Yuma still holds a 899 τ residual from passive emissions, but has received zero new allocations in 12 months.</div>
+    <div class="ic-stat g">One cycle · May–Aug 2025 · +85% · <a href="#split">mechanism ↓</a></div>
   </div>
 
   <div class="insight-card">
@@ -389,7 +389,7 @@ tr.transfer-row td { background: #f0f8f3; }
         <div class="legend-item"><div class="ldot" style="background:#c0392b;opacity:.85"></div>TAO sent</div>
         <div class="legend-item"><div class="lline" style="background:#1a4fa0"></div>TAO price (right)</div>
       </div>
-      <canvas id="transferChart" height="175"></canvas>
+      <div style="position:relative;height:175px;"><canvas id="transferChart"></canvas></div>
       <div class="chart-notes">
         <div class="cnote g">
           <div class="cnote-label">Pre-dTAO era · Aug 2024</div>
@@ -414,17 +414,17 @@ tr.transfer-row td { background: #f0f8f3; }
         <div class="legend-item"><div class="ldot" style="background:rgba(26,79,160,0.7)"></div>Bought SN44</div>
         <div class="legend-item"><div class="ldash"></div>Cumulative net (right)</div>
       </div>
-      <canvas id="alphaChart" height="175"></canvas>
+      <div style="position:relative;height:175px;"><canvas id="alphaChart"></canvas></div>
       <div class="chart-notes">
         <div class="cnote b">
           <div class="cnote-label">May 2025 · the "buy" bar is not a buy</div>
           <div class="cnote-title">Yuma allocation — internal transfer</div>
           <div class="cnote-body">The blue bar in May is the 1,327.93 τ StakeAdded to Yuma's hotkey. Not a fresh market purchase — it's the owner moving their own alpha to the investor's hotkey via the unstake/restake mechanism. <a href="#split">→ How it works</a></div>
         </div>
-        <div class="cnote a">
-          <div class="cnote-label">Aug 2025 · both parties exit</div>
-          <div class="cnote-title">Owner44 + Yuma: 5,386 τ net sold</div>
-          <div class="cnote-body">Green bar = Yuma 1,556 τ (3 txns). Amber = Owner44 2,032 τ. Only month Yuma appears as a seller. <a href="#yuma">→ Yuma P&L</a></div>
+        <div class="cnote r">
+          <div class="cnote-label">Jan 2026 · arrangement confirmed off</div>
+          <div class="cnote-title">4,638 τ sold — zero to Yuma</div>
+          <div class="cnote-body">Largest single liquidation in SN44 history. Had the revenue share been active, Yuma would have received ~524 τ. The on-chain absence is the evidence. <a href="#yuma">→ Yuma P&amp;L</a></div>
         </div>
       </div>
     </div>
@@ -437,7 +437,7 @@ tr.transfer-row td { background: #f0f8f3; }
 <div id="split" class="section">
   <div class="section-label">Emission split</div>
   <div class="section-q">Who has received SCORE alpha emissions, and how was the split decided?</div>
-  <div class="section-a"><strong>Owner44 took 88.4% of all gross unstaked alpha (12,150 τ ~$4.1M). Yuma/DCG received 11.3% (1,556 τ) under an arrangement that is now confirmed off.</strong> One unknown hotkey took 0.3% (43 τ). The Yuma allocation was not automatic — it required an explicit matched transaction on May 23 2025 to transfer the position. Gross values include same-day rebalancing pairs.</div>
+  <div class="section-a"><strong>Owner44 took 88.4% of all net unstaked alpha (10,597 τ ~$3.3M). Yuma/DCG received 11.3% (1,556 τ) under an arrangement that is now confirmed off.</strong> One unknown hotkey took 0.3% (43 τ). The Yuma allocation was not automatic — it required an explicit matched transaction on May 23 2025 to transfer the position.</div>
 
   <!-- ALLOCATION BARS -->
   <div style="margin-bottom:24px;">
@@ -719,7 +719,7 @@ tr.transfer-row td { background: #f0f8f3; }
 <div class="footer">
   <strong>Data:</strong> TAO app API (<code>tao.app/api/beta/portfolio/</code>) · fetched 20 May 2026 · 18 transfer records · 19 staking events.
   USD values use CoinGecko monthly average TAO prices (confirmed May 2025–May 2026; estimated Aug 2024–Apr 2025).
-  Gross unstaked figure (13,749 τ) includes same-day rebalancing pairs; net figure (10,597 τ) excludes them.
+  All unstaked figures are net — same-day restake pairs (Mar/Apr 2025) excluded as internal rebalancing with no real extraction.
   "Revenue share OFF" inferred from absence of Owner44 → Yuma allocations after May 23 2025, confirmed by Jan 2026 liquidation routing 100% to Owner44.
   Yuma / DCG = Yuma, a DCG Company · hotkey 5DXdHixxtCvo… · Tensora lead miner ~75% SN44 emissions.
 </div>
@@ -745,11 +745,12 @@ const xferOut = MONTHS.map(m => -Math.round((xferMon[m]?.o||0)*p(m)));
 const taoP    = MONTHS.map(m => p(m));
 
 // Alpha chart data — split by party
-const ownerRem = {"2025-03":198.2,"2025-04":893.09,"2025-05":1884.34,"2025-07":2503.62,"2025-08":2032.424,"2026-01":4638.808};
+// Mar/Apr removed — same-day restake pairs, net zero, not real extraction events
+const ownerRem = {"2025-05":1884.34,"2025-07":2503.62,"2025-08":2032.424,"2026-01":4638.808};
 const yumaRem  = {"2025-08":1555.606};
 const otherRem = {"2025-02":42.66};
-// stakeMon = net TAO re-staked as fresh buys. Yuma allocation (May 2025) excluded — internal transfer, not a market buy.
-const stakeMon = {"2025-02":{a:0},"2025-03":{a:198.2},"2025-04":{a:893.09},"2025-07":{a:706.06},"2025-11":{a:0.222}};
+// stakeMon = genuine re-staking only. Mar/Apr same-day pairs and May Yuma allocation all excluded.
+const stakeMon = {"2025-02":{a:0},"2025-07":{a:706.06},"2025-11":{a:0.222}};
 
 const ownerData = MONTHS.map(m => Math.round((ownerRem[m]||0)*p(m)));
 const yumaData  = MONTHS.map(m => Math.round((yumaRem[m]||0)*p(m)));
@@ -757,14 +758,15 @@ const otherData = MONTHS.map(m => Math.round((otherRem[m]||0)*p(m)));
 const addData   = MONTHS.map(m => -Math.round((stakeMon[m]?.a||0)*p(m)));
 
 // Cumulative net (all parties)
-const allRem = {"2025-02":42.66,"2025-03":198.2,"2025-04":893.09,"2025-05":1884.34,"2025-07":2503.62,"2025-08":3588.03,"2026-01":4638.808};
+// Mar/Apr removed — same-day pairs net to zero, would inflate cumulative
+const allRem = {"2025-02":42.66,"2025-05":1884.34,"2025-07":2503.62,"2025-08":3588.03,"2026-01":4638.808};
 let cum = 0;
 const cumNet = MONTHS.map(m => {
   cum += ((allRem[m]||0) - (stakeMon[m]?.a||0)) * p(m);
   return Math.round(cum);
 });
 
-const base = {responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false}}};
+const base = {responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false}}};
 
 // dTAO era divider — vertical line at Feb 2025 (index 6) with PRE / POST labels + shading
 const dTAODivider = {
