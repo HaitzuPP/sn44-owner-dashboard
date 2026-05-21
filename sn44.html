@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SN44 · Manako Labs · Dashboard Index</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #fff; color: #111; font-size: 13px; line-height: 1.5; min-height: 100vh; }
+
+/* ── HEADER ── */
+.header { background: #111; color: #fff; padding: 28px 40px 24px; }
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.header .sub { font-size: 12px; color: #888; margin-top: 5px; }
+.badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; color: #c0392b; background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3); border-radius: 3px; padding: 3px 9px; letter-spacing: 0.3px; }
+.badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #c0392b; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── KPI STRIP ── */
+.kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 2px solid #111; }
+.kpi { padding: 16px 24px; border-right: 1px solid #e8e8e8; }
+.kpi:last-child { border-right: none; }
+.kpi-label { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.kpi-value { font-size: 20px; font-weight: 700; }
+.kpi-sub { font-size: 10px; color: #999; margin-top: 2px; }
+.kpi-value.g { color: #1a7a3c; }
+.kpi-value.r { color: #c0392b; }
+.kpi-value.b { color: #1a4fa0; }
+.kpi-value.a { color: #b05e00; }
+
+/* ── SECTION LABEL ── */
+.section-header { padding: 20px 40px 12px; border-bottom: 1px solid #e8e8e8; }
+.section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #bbb; margin-bottom: 3px; }
+.section-title { font-size: 14px; font-weight: 700; color: #111; }
+
+/* ── DASHBOARD GRID ── */
+.dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
+.dash-card { padding: 28px 40px; border-right: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; text-decoration: none; color: inherit; display: block; transition: background 0.12s; position: relative; }
+.dash-card:nth-child(2n) { border-right: none; }
+.dash-card:nth-last-child(-n+2) { border-bottom: none; }
+.dash-card:hover { background: #f9f9f9; }
+.dash-card:hover .card-arrow { opacity: 1; transform: translateX(0); }
+
+.card-num { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #ccc; margin-bottom: 10px; }
+.card-title { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 6px; line-height: 1.25; }
+.card-desc { font-size: 11px; color: #666; line-height: 1.6; margin-bottom: 16px; }
+
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; padding: 3px 8px; border-radius: 2px; }
+.tag.b { background: #eef2fc; color: #1a4fa0; }
+.tag.g { background: #e8f5ee; color: #1a7a3c; }
+.tag.a { background: #fdf3e3; color: #b05e00; }
+.tag.n { background: #f2f2f2; color: #666; }
+
+.card-arrow { position: absolute; top: 28px; right: 40px; font-size: 18px; color: #ccc; opacity: 0; transform: translateX(-4px); transition: opacity 0.15s, transform 0.15s; }
+
+.card-link-label { font-size: 10px; font-weight: 700; color: #1a4fa0; letter-spacing: 0.2px; display: flex; align-items: center; gap: 4px; }
+.card-link-label svg { opacity: 0.7; }
+
+/* ── FOOTER ── */
+.footer { padding: 20px 40px; border-top: 2px solid #111; display: flex; justify-content: space-between; align-items: center; }
+.footer-left { font-size: 10px; color: #999; }
+.footer-right { font-size: 10px; color: #bbb; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .kpi-strip { grid-template-columns: repeat(2,1fr); }
+  .dash-card:nth-child(2n) { border-right: none; }
+  .dash-card { border-right: none !important; }
+  .header, .section-header, .dash-card, .footer { padding-left: 20px; padding-right: 20px; }
+  .card-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header h1">SN44 · Manako Labs</div>
+      <div class="sub">Bittensor Subnet 44 · On-Chain Intelligence · TAO Institute</div>
+    </div>
+    <div class="badge"><span class="dot"></span>Live Data</div>
+  </div>
+</div>
+
+<!-- KPI STRIP -->
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Subnet</div>
+    <div class="kpi-value b">SN44</div>
+    <div class="kpi-sub">Manako Labs</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Dashboards</div>
+    <div class="kpi-value">4</div>
+    <div class="kpi-sub">On-chain views</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Network</div>
+    <div class="kpi-value">dTAO</div>
+    <div class="kpi-sub">Dynamic emissions</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Coverage</div>
+    <div class="kpi-value g">Full</div>
+    <div class="kpi-sub">Flows · splits · revenue</div>
+  </div>
+</div>
+
+<!-- SECTION HEADER -->
+<div class="section-header">
+  <div class="section-label">Research dashboards</div>
+  <div class="section-title">Select a view to open</div>
+</div>
+
+<!-- DASHBOARD CARDS -->
+<div class="dashboard-grid">
+
+  <!-- 1. Full Analysis -->
+  <a class="dash-card" href="consolidated.html">
+    <div class="card-arrow">→</div>
+    <div class="card-num">01 · Full Analysis</div>
+    <div class="card-title">Consolidated On-Chain Dashboard</div>
+    <div class="card-desc">Complete on-chain picture for SN44: emission history, hotkey breakdown, sell pressure, owner position, MTM gain, and key risk signals. The primary research view.</div>
+    <div class="card-tags">
+      <span class="tag b">Emissions</span>
+      <span class="tag b">Sell pressure</span>
+      <span class="tag b">MTM</span>
+      <span class="tag b">Risk</span>
+    </div>
+    <div class="card-link-label">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 10L10 1M10 1H4M10 1V7" stroke="#1a4fa0" stroke-width="1.5" stroke-linecap="round"/></svg>
+      consolidated.html
+    </div>
+  </a>
+
+  <!-- 2. Owner Key -->
+  <a class="dash-card" href="index.html">
+    <div class="card-arrow">→</div>
+    <div class="card-num">02 · Owner Flows</div>
+    <div class="card-title">Owner Key Inflow / Outflow Dashboard</div>
+    <div class="card-desc">TAO in vs. TAO out for the owner cold key over time. Tracks cumulative extraction vs. staking inflows, net position changes, and wallet-level sell behaviour.</div>
+    <div class="card-tags">
+      <span class="tag a">Inflows</span>
+      <span class="tag a">Outflows</span>
+      <span class="tag a">Net position</span>
+    </div>
+    <div class="card-link-label">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 10L10 1M10 1H4M10 1V7" stroke="#1a4fa0" stroke-width="1.5" stroke-linecap="round"/></svg>
+      index.html
+    </div>
+  </a>
+
+  <!-- 3. Emission Split -->
+  <a class="dash-card" href="emission-split.html">
+    <div class="card-arrow">→</div>
+    <div class="card-num">03 · Emission Split</div>
+    <div class="card-title">Emission Split by Hotkey</div>
+    <div class="card-desc">How SN44 emissions are distributed across hotkeys month by month. Reveals concentration, validator dominance, and shifts in staking strategy over the subnet's life.</div>
+    <div class="card-tags">
+      <span class="tag g">Hotkeys</span>
+      <span class="tag g">Distribution</span>
+      <span class="tag g">Monthly</span>
+    </div>
+    <div class="card-link-label">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 10L10 1M10 1H4M10 1V7" stroke="#1a4fa0" stroke-width="1.5" stroke-linecap="round"/></svg>
+      emission-split.html
+    </div>
+  </a>
+
+  <!-- 4. Yuma Revenue -->
+  <a class="dash-card" href="yuma-revenue.html">
+    <div class="card-arrow">→</div>
+    <div class="card-num">04 · Revenue Model</div>
+    <div class="card-title">Yuma / DCG Revenue Share</div>
+    <div class="card-desc">Models the revenue share between Yuma and DCG under the current emission and pricing regime. Tracks implied fee income, split mechanics, and sensitivity to TAO price.</div>
+    <div class="card-tags">
+      <span class="tag n">Yuma</span>
+      <span class="tag n">DCG</span>
+      <span class="tag n">Revenue</span>
+      <span class="tag n">Model</span>
+    </div>
+    <div class="card-link-label">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 10L10 1M10 1H4M10 1V7" stroke="#1a4fa0" stroke-width="1.5" stroke-linecap="round"/></svg>
+      yuma-revenue.html
+    </div>
+  </a>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">TAO Institute · Pylon Partners · SN44 Manako Labs coverage</div>
+  <div class="footer-right">Data sourced from taostats.io · tao.app</div>
+</div>
+
+</body>
+</html>
