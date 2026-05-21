@@ -416,15 +416,15 @@ tr.transfer-row td { background: #f0f8f3; }
       </div>
       <canvas id="alphaChart" height="175"></canvas>
       <div class="chart-notes">
-        <div class="cnote a">
-          <div class="cnote-label">Aug 2025 · both parties exit</div>
-          <div class="cnote-title">Owner44 + Yuma: 5,386 τ net</div>
-          <div class="cnote-body">Green bar = Yuma 1,556 τ (3 txns). Amber = Owner44 2,032 τ. This is the only month Yuma appears. <a href="#yuma">→ Yuma P&L</a></div>
+        <div class="cnote b">
+          <div class="cnote-label">May 2025 · the "buy" bar is not a buy</div>
+          <div class="cnote-title">Yuma allocation — internal transfer</div>
+          <div class="cnote-body">The blue bar in May is the 1,327.93 τ StakeAdded to Yuma's hotkey. Not a fresh market purchase — it's the owner moving their own alpha to the investor's hotkey via the unstake/restake mechanism. <a href="#split">→ How it works</a></div>
         </div>
         <div class="cnote a">
-          <div class="cnote-label">Jan 2026 · 0 τ to Yuma</div>
-          <div class="cnote-title">4,639 τ · 100% Owner44</div>
-          <div class="cnote-body">Largest single event. Yuma's absence from Jan confirms revenue share had ended. <a href="#yuma">→ Why it ended</a></div>
+          <div class="cnote-label">Aug 2025 · both parties exit</div>
+          <div class="cnote-title">Owner44 + Yuma: 5,386 τ net sold</div>
+          <div class="cnote-body">Green bar = Yuma 1,556 τ (3 txns). Amber = Owner44 2,032 τ. Only month Yuma appears as a seller. <a href="#yuma">→ Yuma P&L</a></div>
         </div>
       </div>
     </div>
@@ -748,7 +748,8 @@ const taoP    = MONTHS.map(m => p(m));
 const ownerRem = {"2025-03":198.2,"2025-04":893.09,"2025-05":1884.34,"2025-07":2503.62,"2025-08":2032.424,"2026-01":4638.808};
 const yumaRem  = {"2025-08":1555.606};
 const otherRem = {"2025-02":42.66};
-const stakeMon = {"2025-02":{a:0},"2025-03":{a:198.2},"2025-04":{a:893.09},"2025-05":{a:1608.05},"2025-07":{a:706.06},"2025-11":{a:0.222}};
+// stakeMon = net TAO re-staked as fresh buys. Yuma allocation (May 2025) excluded — internal transfer, not a market buy.
+const stakeMon = {"2025-02":{a:0},"2025-03":{a:198.2},"2025-04":{a:893.09},"2025-07":{a:706.06},"2025-11":{a:0.222}};
 
 const ownerData = MONTHS.map(m => Math.round((ownerRem[m]||0)*p(m)));
 const yumaData  = MONTHS.map(m => Math.round((yumaRem[m]||0)*p(m)));
