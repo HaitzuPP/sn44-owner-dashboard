@@ -347,11 +347,11 @@ tr.transfer-row td { background: #f0f8f3; }
      FLOWS
 ══════════════════════════════════════════════════════════ -->
 <div id="flows" class="section">
-  <div class="section-label">On-chain flows</div>
-  <div class="section-title">Monthly TAO Activity
+  <div class="section-label">On-chain flows — two eras</div>
+  <div class="section-title">Pre-dTAO: Ops &amp; Setup &nbsp;·&nbsp; Post-dTAO: Systematic Alpha Extraction
     <a href="#split" class="xlink">↓ Emission split by hotkey</a>
   </div>
-  <div class="section-sub">All values in USD at monthly average TAO price · Left: direct wallet sends/receives · Right: alpha AMM activity stacked by party</div>
+  <div class="section-sub">Feb 2025 dTAO launch is the dividing line &nbsp;·&nbsp; <strong>Left (pre-dTAO):</strong> direct TAO wallet activity — funding, validator payments, AMM seed &nbsp;·&nbsp; <strong>Right (post-dTAO only):</strong> alpha staking/unstaking begins at subnet launch, zero activity before the line</div>
 
   <div class="chart-grid">
     <!-- TRANSFERS -->
@@ -366,14 +366,14 @@ tr.transfer-row td { background: #f0f8f3; }
       <canvas id="transferChart" height="175"></canvas>
       <div class="chart-notes">
         <div class="cnote g">
-          <div class="cnote-label">Aug 2024</div>
-          <div class="cnote-title">+1,519 τ initial funding</div>
-          <div class="cnote-body">Registration capital from 5CJBY4... — the same address that appears in multiple subsequent transactions.</div>
+          <div class="cnote-label">Pre-dTAO era · Aug 2024</div>
+          <div class="cnote-title">+1,519 τ · subnet registration</div>
+          <div class="cnote-body">Initial capital in. Sep–Jan: −1,188 τ out as monthly validator incentive payments — the cost of holding an emission slot under the old root network model.</div>
         </div>
         <div class="cnote r">
-          <div class="cnote-label">Feb 2025 · dTAO launch day</div>
-          <div class="cnote-title">−1,963 τ · AMM seed</div>
-          <div class="cnote-body">Largest single-month outflow. Coincides exactly with dTAO launch — capital deployed into the SCORE AMM pool, not a sunk expense.</div>
+          <div class="cnote-label">dTAO launch · Feb 13 2025</div>
+          <div class="cnote-title">−1,963 τ · the inflection point</div>
+          <div class="cnote-body">Pre-dTAO costs end here. AMM pool seeded with 1,963 τ — the mechanism that makes all post-dTAO extraction possible. Cost basis for ~$4.6M extracted to date.</div>
         </div>
       </div>
     </div>
@@ -730,8 +730,52 @@ const cumNet = MONTHS.map(m => {
 
 const base = {responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false}}};
 
+// dTAO era divider — vertical line at Feb 2025 (index 6) with PRE / POST labels + shading
+const dTAODivider = {
+  id: 'dTAODivider',
+  afterDraw(chart) {
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea || !scales.x) return;
+    const x = scales.x.getPixelForValue(6); // Feb 25 = index 6
+    const { top, bottom, left } = chartArea;
+
+    ctx.save();
+
+    // Light grey wash over pre-dTAO zone
+    ctx.fillStyle = 'rgba(0,0,0,0.025)';
+    ctx.fillRect(left, top, x - left, bottom - top);
+
+    // Vertical dashed line
+    ctx.strokeStyle = 'rgba(192,57,43,0.55)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Era labels
+    ctx.font = '700 8px Arial';
+    ctx.textBaseline = 'top';
+
+    const preCenter = (left + x) / 2;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillText('PRE-dTAO', preCenter, top + 6);
+
+    const right = scales.x.getPixelForValue(LABELS.length - 1);
+    const postCenter = (x + right) / 2;
+    ctx.fillStyle = 'rgba(192,57,43,0.38)';
+    ctx.fillText('POST-dTAO', postCenter, top + 6);
+
+    ctx.restore();
+  }
+};
+
 // Transfer chart
 new Chart(document.getElementById('transferChart'), {
+  plugins:[dTAODivider],
   data:{labels:LABELS,datasets:[
     {type:'bar', data:xferIn,  backgroundColor:'rgba(26,122,60,0.8)', yAxisID:'y', order:2, stack:'s'},
     {type:'bar', data:xferOut, backgroundColor:'rgba(192,57,43,0.8)', yAxisID:'y', order:2, stack:'s'},
@@ -749,6 +793,7 @@ new Chart(document.getElementById('transferChart'), {
 
 // Alpha by party chart
 new Chart(document.getElementById('alphaChart'), {
+  plugins:[dTAODivider],
   data:{labels:LABELS,datasets:[
     {type:'bar', data:ownerData, backgroundColor:'rgba(176,94,0,0.8)',   yAxisID:'y', order:2, stack:'s', label:'Owner44'},
     {type:'bar', data:yumaData,  backgroundColor:'rgba(26,122,60,0.8)',  yAxisID:'y', order:2, stack:'s', label:'Yuma/DCG'},
